@@ -15,7 +15,7 @@
  */
 
 qx.Class.define("qxl.testtapper.Application", {
-    extend: qx.application.Basic,
+    extend: qx.application.Standalone,
     members: {
         _cnt: null,
         main: function() {
@@ -30,6 +30,15 @@ qx.Class.define("qxl.testtapper.Application", {
                 });
             qx.log.appender.Native;
             let matcher = new RegExp("\\.test\\." + (cfg.module || ''));
+            this.getRoot().add(
+                new qx.ui.basic.Label(`
+                <h1>TestTAPper - the Qooxdoo Testrunner is at work</h1>
+                <p>See the debug console of your browser for details.</p>
+                `).set({
+                    rich: true
+                }),
+                { left: 100, top: 100 }
+            );
             if (cfg.module) {
                 console.log("# running only tests that match " + cfg.module);
             }
@@ -46,6 +55,15 @@ qx.Class.define("qxl.testtapper.Application", {
                 )
             ).then(() => {
                 console.log(`1..${this._cnt}`);
+                this.getRoot().add(
+                    new qx.ui.basic.Label(`
+                    <h1>TestTAPper - is Done</h1>
+                    `).set({
+                        rich: true
+                    }),
+                    { left: 100, bottom: 100 }
+                );
+
             });
         },
         runAll: function(clazz) {

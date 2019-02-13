@@ -3,7 +3,8 @@
     {
       "class": "qxl.testtapper.Application",
       "name": "testtapper",
-      "title": "TAP based Runner for Qooxdoo Tests",
+      "title": "TestTAPper - The Qooxdoo Test Runner",
+      "theme": "qx.theme.Simple",
       "include": [
         "*.test.*"
       ],
@@ -25,7 +26,10 @@
   "targets": [
     {
       "type": "source",
-      "outputPath": "source-output"
+      "outputPath": "source-output",
+      "bundle": {
+        "include": "qx.*"
+      }
     }
     ,{
       "type": "build",
