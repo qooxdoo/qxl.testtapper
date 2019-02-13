@@ -2,6 +2,8 @@
 
 The is a TAP testrunner for Qooxdoo.
 
+![ce53gt1e05](https://user-images.githubusercontent.com/429279/52718722-65c40d00-2fa4-11e9-94e5-b4be30bac433.gif)
+
 ## Online Demo
 
 http://www.qooxdoo.org/qxl.testtapper/
