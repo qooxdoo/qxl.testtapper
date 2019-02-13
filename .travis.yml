@@ -3,13 +3,15 @@ node_js: "node"
 
 script:
   - |
+    set -x
     node_modules/.bin/qx compile --target=build --machine-readable
     node_modules/.bin/qx serve --minify=off  --machine-readable --target=build  --listen-port=8080 &
     SERVER_PID=$!
     sleep 10
     node build-output/resource/qxl/testtapper/run.js http://localhost:8080
     kill $SERVER_PID
-
+    rm build-output/*.json
+    
 deploy:
   provider: pages
   skip-cleanup: true
