@@ -2,7 +2,7 @@
 
 The is a TAP testrunner for Qooxdoo.
 
-## Online version
+## Online Demo
 
 http://www.qooxdoo.org/qxl.testtapper/
 

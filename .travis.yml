@@ -8,6 +8,18 @@ before_script:
   - popd
 
 script:
-  - node_modules/qxcompiler/qx serve &
-  - node source-output/resource/qxl/testtapper/run.js http://localhost:8093
-  - pkill -f node || true
+  - node_modules/qxcompiler/qx compile --target=build -v
+  - |
+    node_modules/qxcompiler/qx serve --target=build -v &
+    SERVER_PID=$!
+    sleep 5
+    node build-output/resource/qxl/testtapper/run.js http://localhost:8093
+    kill $SERVER_PID
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
+  local-dir: build-output
+  on:
+    branch: master
