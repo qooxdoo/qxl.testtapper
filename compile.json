@@ -1,0 +1,41 @@
+{
+  "applications": [
+    {
+      "class": "qxl.testtapper.Application",
+      "name": "testtapper",
+      "title": "TAP based Runner for Qooxdoo Tests",
+      "include": [
+        "qxl.testtapperdemo.test.*"
+      ]
+    }
+  ],
+  "include": [
+    "qx.*",
+    "q",
+    "qxWeb"
+  ],
+  "exclude": [
+    "qx.test.*",
+    "qx.module.Blocker",
+    "qx.module.Placement"
+  ],
+  "targets": [
+    {
+      "type": "source",
+      "outputPath": "source-output"
+    }
+    ,{
+      "type": "build",
+      "outputPath": "build-output"
+    }
+  ],
+
+  "defaultTarget": "source",
+
+  "locales": [
+    "en"
+  ],
+  "serve": {
+     "listenPort": 8089
+  }
+}
