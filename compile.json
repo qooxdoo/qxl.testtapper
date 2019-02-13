@@ -5,7 +5,10 @@
       "name": "testtapper",
       "title": "TAP based Runner for Qooxdoo Tests",
       "include": [
-        "qxl.testtapperdemo.test.*"
+        "*.test.*"
+      ],
+      "exclude": [
+        "qx.test.*"
       ]
     }
   ],

@@ -8,6 +8,6 @@ before_script:
   - popd
 
 script:
-  - node_modules/qxcompiler/qx serve --target=build -v &
-  - node build-output/resource/qxl/testtapper/run.js http://localhost:8093
+  - node_modules/qxcompiler/qx serve &
+  - node source-output/resource/qxl/testtapper/run.js http://localhost:8093
   - pkill -f node || true
