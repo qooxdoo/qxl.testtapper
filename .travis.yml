@@ -13,7 +13,7 @@ script:
     node_modules/qxcompiler/qx serve --target=build -v &
     SERVER_PID=$!
     sleep 5
-    node build-output/resource/qxl/testtapper/run.js http://localhost:8093
+    node build-output/resource/qxl/testtapper/run.js http://localhost:8080
     kill $SERVER_PID
 
 deploy:
