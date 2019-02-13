@@ -3,10 +3,10 @@ node_js: "node"
 
 script:
   - |
-    node_modules/.bin/qx compile --target=build -v
-    node_modules/.bin/qx serve --target=build &
+    node_modules/.bin/qx compile --target=build --machine-readable
+    node_modules/.bin/qx serve --minify=off  --machine-readable --target=build &
     SERVER_PID=$!
-    sleep 30
+    sleep 10
     node build-output/resource/qxl/testtapper/run.js http://localhost:8080
     kill $SERVER_PID
 
