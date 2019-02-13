@@ -8,11 +8,11 @@ before_script:
   - popd
 
 script:
-  - node_modules/qxcompiler/qx compile --target=build -v
   - |
-    node_modules/qxcompiler/qx serve --target=build -v &
+    node_modules/.bin/qx compile -v
+    node_modules/.bin/qx serve &
     SERVER_PID=$!
-    sleep 5
+    sleep 30
     node build-output/resource/qxl/testtapper/run.js http://localhost:8080
     kill $SERVER_PID
 
