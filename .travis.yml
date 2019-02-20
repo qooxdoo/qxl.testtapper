@@ -5,10 +5,10 @@ script:
   - |
     set -x
     node_modules/.bin/qx compile --target=build --machine-readable
-    node_modules/.bin/qx serve --minify=off  --machine-readable --target=build  --listen-port=8080 &
+    node_modules/.bin/qx serve --minify=off  --machine-readable --target=build &
     SERVER_PID=$!
     sleep 10
-    node build-output/resource/qxl/testtapper/run.js http://localhost:8080
+    node build-output/resource/qxl/testtapper/run.js http://localhost:8089
     kill $SERVER_PID
     rm build-output/*.json
     
