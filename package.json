@@ -1,9 +1,9 @@
 {
   "dependencies": {
-    "qxcompiler": "^0.2.64"
+    "qxcompiler": "^0.2.73"
   },
   "name": "qxl.testtapper",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/qooxdoo/qxl.testtapper.git"
@@ -15,6 +15,6 @@
   ],
   "devDependencies": {
     "puppeteer": "^1.12.2",
-    "yargs": "^13.1.0"
+    "yargs": "^13.2.1"
   }
 }

@@ -15,7 +15,7 @@
         "email": "tobi@oetiker.ch"
       }
     ],
-    "version": "0.1.0",
+    "version": "0.1.1",
     "sourceViewUri": "https://github.com/qooxdoo/qxl.testtapper/blob/%{qxGitBranch}/source/class/%{classFilePath}#L%{lineNumber}"
   },
   "provides": {
@@ -27,8 +27,7 @@
     "type": "application",
     "application": {
       "class": "qxl.testtapper.Application",
-      "theme": "qxl.testtapper.Theme",
-      "name": "apiviewer",
+      "name": "testapper",
       "title": "Qooxdoo TestTAPper",
       "environment": {
         "qx.icontheme": "Tango"
