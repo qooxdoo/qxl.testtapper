@@ -2,15 +2,11 @@ language: node_js
 node_js: "10"
 
 script:
-  - |
-    node_modules/.bin/qx serve --machine-readable --target=build --listen-port=8089 &
-    SERVER_PID=$!
-    while ! nc -z localhost 8089; do
-      sleep 1
-    done
-    node build-output/resource/qxl/testtapper/run.js http://localhost:8089/testtapper/
-    kill $SERVER_PID
-    rm build-output/*.json
+  - node_modules/.bin/qx serve --machine-readable --target=build --listen-port=8089 &
+  - while ! nc -z localhost 8089; do sleep 1; done
+  - node build-output/resource/qxl/testtapper/run.js http://localhost:8089/testtapper/
+  - pkill -f node
+  - rm build-output/*.json
 
 deploy:
   provider: pages
