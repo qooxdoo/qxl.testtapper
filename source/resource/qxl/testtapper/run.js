@@ -29,7 +29,7 @@ let argv = require("yargs")
   })
   .help("h")
   .alias("h", "help")
-  .version("0.0.1")
+  .version("0.1.5")
   .wrap(72)
   .strict(true)
   .argv;
@@ -53,46 +53,44 @@ let notOk = 0;
 let Ok = 0;
 try {
   (async () => {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
+    let browser = await puppeteer.launch();
+    let page = await browser.newPage();
     page.on("console", async msg => {
-      const args = await msg.args;
-      if (args && args.map) {
-        Promise.all(args.map(async arg => {
-          const val = await arg.jsonValue();
-          // value is serializable
-          // eslint-disable-next-line no-negated-condition
-          if (val.match && JSON.stringify(val) !== JSON.stringify({})) {
-            if  ( val.match(/^\d+\.\.\d+$/)) {
-              browser.close();
-              console.info(`DONE testing ${Ok} ok, ${notOk} not ok`);
-              process.exit(notOk);
-            }
-            if (val.match(/^not ok /)) {
-              notOk++;
-              console.log(val);
-            } else if (val.match(/^ok\s/)) {
-              if (!argv.terse) {
-                console.log(val);
-              }
-              Ok++;
-            } else if (val.match(/^#/) && argv.diag) {
-              console.log(val);
-            } else if (val.verbose) {
-              console.log(val);
-            }
-          } else {
-            const {
-              type, subtype, description
-            } = arg._remoteObject;
-            if (val.diag || val.verbose) {
-              console.log(description);
-            }
+      let args = await msg.args();
+      Promise.all(args.map(async arg => {
+        let val = await arg.jsonValue();
+        // value is serializable
+        // eslint-disable-next-line no-negated-condition
+        if (val.match && JSON.stringify(val) !== JSON.stringify({})) {
+          if  ( val.match(/^\d+\.\.\d+$/)) {
+            browser.close();
+            console.info(`DONE testing ${Ok} ok, ${notOk} not ok`);
+            process.exit(notOk);
           }
-        })).catch(err => {
-          throw (err);
-        });
-      }
+          if (val.match(/^not ok /)) {
+            notOk++;
+            console.log(val);
+          } else if (val.match(/^ok\s/)) {
+            if (!argv.terse) {
+              console.log(val);
+            }
+            Ok++;
+          } else if (val.match(/^#/) && argv.diag) {
+            console.log(val);
+          } else if (val.verbose) {
+            console.log(val);
+          }
+        } else {
+          const {
+            type, subtype, description
+          } = arg._remoteObject;
+          if (val.diag || val.verbose) {
+            console.log(description);
+          }
+        }
+      })).catch(err => {
+        throw (err);
+      });
     });
     await page.goto(href.href);
   })();
