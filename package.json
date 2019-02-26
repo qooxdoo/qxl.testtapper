@@ -1,20 +1,9 @@
 {
   "dependencies": {
-    "qxcompiler": "^0.2.73"
+    "qxcompiler": "^0.3.0-alpha"
   },
-  "name": "qxl.testtapper",
-  "version": "0.1.1",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/qooxdoo/qxl.testtapper.git"
-  },
-  "licenses": [
-    {
-      "type": "MIT"
-    }
-  ],
   "devDependencies": {
-    "puppeteer": "^1.12.2",
+    "puppeteer": "^0.13.0",
     "yargs": "^13.2.1"
   }
 }
