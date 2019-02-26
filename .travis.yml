@@ -3,7 +3,6 @@ node_js: "10"
 
 script:
   - |
-    set -x
     node_modules/.bin/qx serve --machine-readable --target=build --listen-port=8089 &
     SERVER_PID=$!
     while ! nc -z localhost 8089; do
