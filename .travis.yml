@@ -9,7 +9,7 @@ script:
     while ! nc -z localhost 8089; do
       sleep 1
     done
-    node build-output/resource/qxl/testtapper/run.js http://localhost:8089/build/testtapper/
+    node build-output/resource/qxl/testtapper/run.js http://localhost:8089/testtapper/
     kill $SERVER_PID
     rm build-output/*.json
 
