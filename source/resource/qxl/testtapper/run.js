@@ -66,9 +66,7 @@ try {
             if  ( val.match(/^\d+\.\.\d+$/)) {
               browser.close();
               console.info(`DONE testing ${Ok} ok, ${notOk} not ok`);
-              if (notOk > 0) {
-                process.exitCode = 1;
-              }
+              process.exit(notOk);
             }
             if (val.match(/^not ok /)) {
               notOk++;
