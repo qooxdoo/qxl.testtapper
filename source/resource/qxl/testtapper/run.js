@@ -57,42 +57,44 @@ try {
     const page = await browser.newPage();
     page.on("console", async msg => {
       const args = await msg.args;
-      Promise.all(args.map(async arg => {
-        const val = await arg.jsonValue();
-        // value is serializable
-        // eslint-disable-next-line no-negated-condition
-        if (val.match && JSON.stringify(val) !== JSON.stringify({})) {
-          if  ( val.match(/^\d+\.\.\d+$/)) {
-            browser.close();
-            console.info(`DONE testing ${Ok} ok, ${notOk} not ok`);
-            if (notOk > 0) {
-              process.exitCode = 1;
+      if (args && args.map) {
+        Promise.all(args.map(async arg => {
+          const val = await arg.jsonValue();
+          // value is serializable
+          // eslint-disable-next-line no-negated-condition
+          if (val.match && JSON.stringify(val) !== JSON.stringify({})) {
+            if  ( val.match(/^\d+\.\.\d+$/)) {
+              browser.close();
+              console.info(`DONE testing ${Ok} ok, ${notOk} not ok`);
+              if (notOk > 0) {
+                process.exitCode = 1;
+              }
             }
-          }
-          if (val.match(/^not ok /)) {
-            notOk++;
-            console.log(val);
-          } else if (val.match(/^ok\s/)) {
-            if (!argv.terse) {
+            if (val.match(/^not ok /)) {
+              notOk++;
+              console.log(val);
+            } else if (val.match(/^ok\s/)) {
+              if (!argv.terse) {
+                console.log(val);
+              }
+              Ok++;
+            } else if (val.match(/^#/) && argv.diag) {
+              console.log(val);
+            } else if (val.verbose) {
               console.log(val);
             }
-            Ok++;
-          } else if (val.match(/^#/) && argv.diag) {
-            console.log(val);
-          } else if (val.verbose) {
-            console.log(val);
+          } else {
+            const {
+              type, subtype, description
+            } = arg._remoteObject;
+            if (val.diag || val.verbose) {
+              console.log(description);
+            }
           }
-        } else {
-          const {
-            type, subtype, description
-          } = arg._remoteObject;
-          if (val.diag || val.verbose) {
-            console.log(description);
-          }
-        }
-      })).catch(err => {
-        throw (err);
-      });
+        })).catch(err => {
+          throw (err);
+        });
+      }
     });
     await page.goto(href.href);
   })();
