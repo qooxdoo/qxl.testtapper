@@ -2,9 +2,7 @@
   "dependencies": {
     "nyc": "^13.3.0",
     "puppeteer": "^1.12.2",
-    "qxcompiler": "^0.3.0-alpha"
-  },
-  "devDependencies": {
+    "qxcompiler": "^0.3.0-alpha",
     "coveralls": "^3.0.3",
     "puppeteer-to-istanbul": "^1.2.2",
     "yargs": "^13.2.1"

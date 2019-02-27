@@ -13,7 +13,7 @@ http://www.qooxdoo.org/qxl.testtapper/
 $ qx contrib update
 $ qx contrib install qooxdoo/qxl.testtapper
 $ echo 10 > .nvmrc
-$ npm i puppeteer yargs
+$ npm i puppeteer yargs nyc coveralls puppeteer-to-istanbul
 $ qx serve
 ```
 
@@ -23,6 +23,7 @@ If you want to run the tests from the command line you need a headless browser t
 
 ```
 $ node source-output/resource/qxl/testtapper/run.js http://localhost:8080
+$ node_modules/.bin/nyc report --reporter=text-lcov | node_modules/.bin/coveralls
 ```
 
 if you start `run.js` without arguments it ouputs a little help
