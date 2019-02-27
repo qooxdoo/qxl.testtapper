@@ -2,6 +2,7 @@ language: node_js
 node_js: "10"
 
 script:
+  - node_modules/.bin/qx compile --machine-readable --target=build
   - node_modules/.bin/qx serve --machine-readable --target=source --listen-port=8089 &
   - while ! nc -z localhost 8089; do sleep 1; done
   - node source-output/resource/qxl/testtapper/run.js http://localhost:8089/testtapper/
