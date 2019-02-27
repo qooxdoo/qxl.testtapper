@@ -30,7 +30,7 @@ async function goTest () {
     })
     .help("h")
     .alias("h", "help")
-    .version("0.1.6")
+    .version("0.2.0")
     .wrap(72)
     .strict(true)
     .argv;
