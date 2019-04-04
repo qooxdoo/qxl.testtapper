@@ -86,7 +86,7 @@ async function goTest () {
     else if (val.match(/^#/) && argv.diag) {
       console.log(val);
     }
-    else if (val.verbose) {
+    else if (argv.verbose) {
       console.log(val);
     }
   });
