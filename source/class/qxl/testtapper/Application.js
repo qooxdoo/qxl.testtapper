@@ -18,9 +18,11 @@ qx.Class.define("qxl.testtapper.Application", {
     extend: qx.application.Standalone,
     members: {
         _cnt: null,
+        _failed: null,
         main: function() {
             this.base(arguments);
             this._cnt = 0;
+            this._failed = {};
             // eslint-disable-next-line no-undef
             let cfg = {};
             qx.bom.History.getInstance().getState()
@@ -43,7 +45,7 @@ qx.Class.define("qxl.testtapper.Application", {
                 console.log("# running only tests that match " + cfg.module);
             }
             let clazzes = Object.keys(qx.Class.$$registry)
-                .filter(clazz => clazz.match(matcher));
+                .filter(clazz => clazz.match(matcher)).sort();
 
             return new qx.Promise.all(clazzes.map(
                 clazz => this.runAll(
@@ -68,8 +70,9 @@ qx.Class.define("qxl.testtapper.Application", {
         },
         runAll: function(clazz) {
             let that = this;
+            console.info(`# start testing ${clazz}.`);
             let methodNames = Object.keys(clazz.prototype)
-                .filter(name => name.match(/^test/));
+                .filter(name => name.match(/^test/)).sort();
             return new qx.Promise(resolve => {
                 let pos = clazz.classname.lastIndexOf(".");
                 let pkgname = clazz.classname.substring(0, pos);
@@ -78,17 +81,7 @@ qx.Class.define("qxl.testtapper.Application", {
                 let methodNameIndex = -1;
                 let next = () => {
                     methodNameIndex++;
-                    if (!methodNames) {
-                        console.log(`# run default tests for ${clazz.classname}`);
-                        if (methodNameIndex === 0) {
-                            loader.runTests(testResult, clazz.classname, null);
-                        }
-                        else {
-                            resolve();
-                        }
-                    }
-                    else if (methodNameIndex < methodNames.length) {
-                        console.log(`# run ${clazz.classname}:${methodNames[methodNameIndex]}`);
+                    if (methodNameIndex < methodNames.length) {
                         loader.runTests(
                             testResult,
                             clazz.classname,
@@ -101,35 +94,53 @@ qx.Class.define("qxl.testtapper.Application", {
                 };
                 let showExceptions = arr => {
                     arr.forEach(item => {
-                        that._cnt++;
-                        let message = String(item.exception);
-                        if (item.exception && item.exception.message) {
-                            message = item.exception.message;
+                        if (item.test.getFullName){
+                            let test = item.test.getFullName();
+                            that._failed[test] = true;
+                            that._cnt++;
+                            let message = String(item.exception);
+                            if (item.exception) {
+                                if (item.exception.message) {
+                                message = item.exception.message;
+                                console.info(`not ok ${that._cnt} - ${test} - ${message}`);
+                                }
+                                else {
+                                    console.error('# '+item.exception);
+                                }
+                            }
                         }
-                        console.info(`not ok ${that._cnt} - ${message} ` + item.test.getClassName() + ":" + item.test.getName());
-                        if (item.exception && !item.exception.message) {
-                            console.error(item.exception);
+                        else {
+                            console.error('Unexpected Error - ',item);
                         }
                     });
                     setTimeout(next, 0);
                 };
 
                 loader.getSuite().add(clazz);
-
-                testResult.addListener("endTest", evt => {
-                    that._cnt++;
-                    console.info(`ok ${that._cnt} - ` + evt.getData().getFullName());
-                    setTimeout(next, 0);
+                testResult.addListener("startTest", evt => {
+                    console.info('# start ' +evt.getData().getFullName());
                 });
                 testResult.addListener("wait", evt => {
-                    that._cnt++;
-                    console.info(`not ok ${that._cnt} - stop waiting for ` + evt.getData().getFullName());
+                    console.info('# wait '+evt.getData().getFullName());
+                });        
+                testResult.addListener("endMeasurement", evt => {
+                    console.info('# endMeasurement '+evt.getData().getFullName());
+                });        
+                testResult.addListener("endTest", evt => {
+                    let test = evt.getData().getFullName();
+                    if (!that._failed[test]){
+                        that._cnt++;
+                        console.info(`ok ${that._cnt} - ` + test);
+                    }
+                    setTimeout(next, 0);
                 });
                 testResult.addListener("failure", evt => showExceptions(evt.getData()));
                 testResult.addListener("error", evt => showExceptions(evt.getData()));
                 testResult.addListener("skip", evt => {
                     that._cnt++;
-                    console.info(`ok ${that._cnt} - # SKIP ` + evt.getData().getFullName());
+                    let test = evt.getData()[0].test.getFullName();
+                    that._failed[test] = true;
+                    console.info(`ok ${that._cnt} - # SKIP ${test}`);
                 });
 
                 next();

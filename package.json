@@ -1,10 +1,13 @@
 {
   "dependencies": {
-    "nyc": "^13.3.0",
-    "puppeteer": "^1.12.2",
-    "qxcompiler": "^0.3.0-alpha",
     "coveralls": "^3.0.3",
+    "nyc": "^13.3.0",
+    "puppeteer": "^1.14.0",
     "puppeteer-to-istanbul": "^1.2.2",
+    "qxcompiler": "^0.3.0-alpha.20190419-1314",
     "yargs": "^13.2.1"
+  },
+  "scripts": {
+      "test": "./runtests.sh"
   }
 }
