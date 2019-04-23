@@ -13,11 +13,11 @@
       ]
     }
   ],
-  "include": [
-    "qx.*",
-    "q",
-    "qxWeb"
-  ],
+//  "include": [
+//    "qx.*",
+//    "q",
+//    "qxWeb"
+//  ],
   "exclude": [
     "qx.test.*",
     "qx.module.Blocker",
@@ -30,8 +30,7 @@
       "bundle": {
         "include": "qx.*"
       }
-    }
-    ,{
+    },{
       "type": "build",
       "outputPath": "build-output"
     }

@@ -1,7 +1,7 @@
-qx.Class.define("qxl.testtapperdemo.test.Test02", {
+qx.Class.define("qxl.testtapperdemo.test.Test02MultiAssert", {
   extend: qx.dev.unit.TestCase,
   members: {
-    testEncDecoding: function() {
+    test00EncDecoding: function() {
       var got = qx.util.Base64.decode(qx.util.Base64.encode("foo:bar")).split(":");
       this.assertIdentical(got[0], "foo");
       this.assertIdentical(got[1], "bar");
@@ -14,7 +14,6 @@ qx.Class.define("qxl.testtapperdemo.test.Test02", {
       this.assertIdentical(got[0], "foo");
       this.assertIdentical(got[1], "undefined");
     }
-
   }
 
 });

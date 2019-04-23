@@ -1,0 +1,21 @@
+language: node_js
+node_js: "10"
+
+script:
+  - node_modules/.bin/qx compile --machine-readable --target=build
+  - node_modules/.bin/qx serve --machine-readable --target=source --listen-port=8089 &
+  - while ! nc -z localhost 8089; do sleep 1; done
+  - node source-output/resource/qxl/testtapper/run.js http://localhost:8089/testtapper/
+  - pkill -f node
+  - rm build-output/*.json
+
+after_success:
+  - node_modules/.bin/nyc report --reporter=text-lcov | node_modules/.bin/coveralls
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard, marked secure
+  local-dir: build-output
+  on:
+    branch: master
