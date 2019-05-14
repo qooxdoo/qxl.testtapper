@@ -13,11 +13,17 @@ http://www.qooxdoo.org/qxl.testtapper/
 
 ## Adding an testrunnner to your own code
 ```
-$ qx contrib update
-$ qx contrib install qooxdoo/qxl.testtapper
+$ nqx qx package update
+$ nqx qx package install qooxdoo/qxl.testtapper
 $ echo 10 > .nvmrc
 $ npm i puppeteer yargs nyc coveralls puppeteer-to-istanbul
-$ qx serve
+```
+
+Now edit the `"myapp.test.*"` entry in your `compile.json` file to point to the
+test classes in your own application.
+
+```
+$ npx qx serve
 ```
 
 Then browse to [http://localhost:8080](http://localhost:8080).  You will see that you now have a new application listed, the "Qooxdoo testTAPper", that you can click on the link to run. The output of the application may be a bit underwhelming ... have a look at the debug console to see the action.
