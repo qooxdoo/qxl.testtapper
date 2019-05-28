@@ -7,10 +7,7 @@
       "title": "TestTAPper - The Qooxdoo Test Runner",
       "theme": "qx.theme.Simple",
       "include": [
-        "*.test.*"
-      ],
-      "exclude": [
-        "qx.test.*"
+        "qxl.testtapperdemo.test.*"
       ]
     }
   ],

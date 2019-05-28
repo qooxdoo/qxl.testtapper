@@ -45,17 +45,22 @@ qx.Class.define("qxl.testtapper.Application", {
                 console.log("# running only tests that match " + cfg.module);
             }
             let clazzes = Object.keys(qx.Class.$$registry)
-                .filter(clazz => clazz.match(matcher)).sort();
-
-            return new qx.Promise.all(clazzes.map(
-                clazz => this.runAll(
-                    qx.Class.$$registry[clazz])
-                    .then(() => {
+            .filter(clazz => clazz.match(matcher))
+            .sort();
+            let pChain = new qx.Promise((resolve,reject) => resolve(true));
+            clazzes.forEach(
+                clazz => {
+                    pChain = pChain.then(()=>
+                        this.runAll(
+                            qx.Class.$$registry[clazz]
+                        ).then(()=>{
                             console.info(`# done testing ${clazz}.`);
-                        }
-                    )
-                )
-            ).then(() => {
+                        })
+                    );
+                }
+            );
+
+            return pChain.then(() => {
                 console.log(`1..${this._cnt}`);
                 this.getRoot().add(
                     new qx.ui.basic.Label(`
@@ -65,7 +70,6 @@ qx.Class.define("qxl.testtapper.Application", {
                     }),
                     { left: 100, bottom: 100 }
                 );
-
             });
         },
         runAll: function(clazz) {
@@ -122,10 +126,10 @@ qx.Class.define("qxl.testtapper.Application", {
                 });
                 testResult.addListener("wait", evt => {
                     console.info('# wait '+evt.getData().getFullName());
-                });        
+                });
                 testResult.addListener("endMeasurement", evt => {
                     console.info('# endMeasurement '+evt.getData().getFullName());
-                });        
+                });
                 testResult.addListener("endTest", evt => {
                     let test = evt.getData().getFullName();
                     if (!that._failed[test]){
