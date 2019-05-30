@@ -53,9 +53,9 @@ qx.Class.define("qxl.testtapper.Application", {
                     pChain = pChain.then(()=>
                         this.runAll(
                             qx.Class.$$registry[clazz]
-                        ).then(()=>{
-                            console.info(`# done testing ${clazz}.`);
-                        })
+                        ).then(()=>
+                            console.info(`# done testing ${clazz}.`)
+                        )
                     );
                 }
             );
