@@ -24,4 +24,3 @@ qx.Class.define("qxl.testtapperdemo.test.Test09AsyncFunction", {
     }
   }
 });
-`test`\
