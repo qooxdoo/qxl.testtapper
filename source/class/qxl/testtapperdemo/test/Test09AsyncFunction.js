@@ -21,6 +21,9 @@ qx.Class.define("qxl.testtapperdemo.test.Test09AsyncFunction", {
     "test03: async function exception": async function () {
       let value = await resolveAfter1Seconds();
       unknownFunctionCall();
+    },
+    "test04: one is one": function () {
+      this.assertEquals(1,1,"one is one");
     }
   }
 });
