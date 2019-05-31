@@ -22,16 +22,27 @@
       "outputPath": "source-output",
       "bundle": {
         "include": "qx.*"
+      },
+      "babelOptions": {
+        "targets": {
+        "edge": "18",
+        "chrome": "73",
+        "firefox": "66"
+        }
       }
     },{
       "type": "build",
-      "outputPath": "build-output"
+      "outputPath": "build-output",
+      "babelOptions": {
+        "targets": {
+        "edge": "18",
+        "chrome": "73",
+        "firefox": "66"
+        }
+      }
     }
   ],
-  "babelOptions": {
-    "targets": {
-    }
-  },
+
   "defaultTarget": "source",
 
   "locales": [
