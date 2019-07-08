@@ -50,10 +50,5 @@
   ],
   "serve": {
      "listenPort": 8089
-  },
-  "libraries": [
-    ".",
-    "../qooxdoo/framework"
-  ]
-
+  }
 }
