@@ -76,7 +76,8 @@ qx.Class.define("qxl.testtapper.Application", {
             let that = this;
             console.info(`# start testing ${clazz}.`);
             let methodNames = Object.keys(clazz.prototype)
-                .filter(name => name.match(/^test/)).sort();
+                .filter(name => name.match(/^test/) && qx.Bootstrap.isFunctionOrAsyncFunction(clazz.prototype[name]))
+                .sort();
             return new qx.Promise(resolve => {
                 let pos = clazz.classname.lastIndexOf(".");
                 let pkgname = clazz.classname.substring(0, pos);
