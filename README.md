@@ -13,8 +13,8 @@ http://www.qooxdoo.org/qxl.testtapper/
 
 ## Adding an testrunnner to your own code
 ```
-$ nqx qx package update
-$ nqx qx package install qooxdoo/qxl.testtapper
+$ npx qx package update
+$ npx qx package install qooxdoo/qxl.testtapper
 $ echo 10 > .nvmrc
 $ npm i puppeteer yargs nyc coveralls puppeteer-to-istanbul
 ```
