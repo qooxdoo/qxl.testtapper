@@ -19,6 +19,18 @@ qx.Class.define("qxl.testtapper.Application", {
     members: {
         _cnt: null,
         _failed: null,
+        log: function(text) {
+           console.log(text);
+           qx.log.Logger.debug(text);
+        },
+        info: function(text) {
+           console.log(text);
+           qx.log.Logger.info(text);
+        },
+        error: function(text) {
+           console.log(text);
+           qx.log.Logger.error(text);
+        },
         main: function() {
             this.base(arguments);
             this._cnt = 0;
@@ -30,19 +42,30 @@ qx.Class.define("qxl.testtapper.Application", {
                     let [key,value] = item.split('=');
                     cfg[key] = value;
                 });
-            qx.log.appender.Native;
-            let matcher = new RegExp("\\.test\\." + (cfg.module || ''));
-            this.getRoot().add(
+            let main_container = new qx.ui.container.Composite();
+            main_container.setLayout(new qx.ui.layout.VBox());
+            main_container.add(
                 new qx.ui.basic.Label(`
                 <h1>TestTAPper - the Qooxdoo Testrunner is at work</h1>
-                <p>See the debug console of your browser for details.</p>
                 `).set({
                     rich: true
-                }),
-                { left: 100, top: 100 }
+                })
             );
+//            qx.log.appender.Native;
+        	let logger = new qxl.logpane.LogPane();
+			logger.setShowToolBar(false);
+			logger.fetch();
+            main_container.add(logger, {flex: 1});
+			main_container.setHeight(640);
+			main_container.setWidth(1024);
+		    this.getRoot().add(main_container);
+
+
+            let matcher = new RegExp("\\.test\\." + (cfg.module || ''));
+
+
             if (cfg.module) {
-                console.log("# running only tests that match " + cfg.module);
+                this.log("# running only tests that match " + cfg.module);
             }
             let clazzes = Object.keys(qx.Class.$$registry)
             .filter(clazz => clazz.match(matcher))
@@ -54,27 +77,26 @@ qx.Class.define("qxl.testtapper.Application", {
                         this.runAll(
                             qx.Class.$$registry[clazz]
                         ).then(()=>{
-                            console.info(`# done testing ${clazz}.`);
+                            this.info(`# done testing ${clazz}.`);
                         })
                     );
                 }
             );
 
             return pChain.then(() => {
-                console.log(`1..${this._cnt}`);
-                this.getRoot().add(
+                this.log(`1..${this._cnt}`);
+                main_container.add(
                     new qx.ui.basic.Label(`
                     <h1>TestTAPper - is Done</h1>
                     `).set({
                         rich: true
-                    }),
-                    { left: 100, bottom: 100 }
+                    })
                 );
             });
         },
         runAll: function(clazz) {
             let that = this;
-            console.info(`# start testing ${clazz}.`);
+            this.info(`# start testing ${clazz}.`);
             let methodNames = Object.keys(clazz.prototype)
                 .filter(name => name.match(/^test/) && qx.Bootstrap.isFunctionOrAsyncFunction(clazz.prototype[name]))
                 .sort();
@@ -107,15 +129,15 @@ qx.Class.define("qxl.testtapper.Application", {
                             if (item.exception) {
                                 if (item.exception.message) {
                                 message = item.exception.message;
-                                console.info(`not ok ${that._cnt} - ${test} - ${message}`);
+                                this.info(`not ok ${that._cnt} - ${test} - ${message}`);
                                 }
                                 else {
-                                    console.error('# '+item.exception);
+                                    this.error('# '+item.exception);
                                 }
                             }
                         }
                         else {
-                            console.error('Unexpected Error - ',item);
+                            this.error('Unexpected Error - ',item);
                         }
                     });
                     setTimeout(next, 0);
@@ -123,19 +145,19 @@ qx.Class.define("qxl.testtapper.Application", {
 
                 loader.getSuite().add(clazz);
                 testResult.addListener("startTest", evt => {
-                    console.info('# start ' +evt.getData().getFullName());
+                    this.info('# start ' +evt.getData().getFullName());
                 });
                 testResult.addListener("wait", evt => {
-                    console.info('# wait '+evt.getData().getFullName());
+                    this.info('# wait '+evt.getData().getFullName());
                 });
                 testResult.addListener("endMeasurement", evt => {
-                    console.info('# endMeasurement '+evt.getData().getFullName());
+                    this.info('# endMeasurement '+evt.getData().getFullName());
                 });
                 testResult.addListener("endTest", evt => {
                     let test = evt.getData().getFullName();
                     if (!that._failed[test]){
                         that._cnt++;
-                        console.info(`ok ${that._cnt} - ` + test);
+                        this.info(`ok ${that._cnt} - ` + test);
                     }
                     setTimeout(next, 0);
                 });
@@ -145,7 +167,7 @@ qx.Class.define("qxl.testtapper.Application", {
                     that._cnt++;
                     let test = evt.getData()[0].test.getFullName();
                     that._failed[test] = true;
-                    console.info(`ok ${that._cnt} - # SKIP ${test}`);
+                    this.info(`ok ${that._cnt} - # SKIP ${test}`);
                 });
 
                 next();
