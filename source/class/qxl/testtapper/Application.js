@@ -68,7 +68,7 @@ qx.Class.define("qxl.testtapper.Application", {
                 this.log("# running only tests that match " + cfg.module);
             }
             let clazzes = Object.keys(qx.Class.$$registry)
-            .filter(clazz => clazz.match(matcher))
+            .filter(clazz => clazz.match(matcher) && (qx.Class.$$registry[clazz].$$classtype === undefined))
             .sort();
             let pChain = new qx.Promise((resolve,reject) => resolve(true));
             clazzes.forEach(
@@ -151,7 +151,7 @@ qx.Class.define("qxl.testtapper.Application", {
                     this.info('# wait '+evt.getData().getFullName());
                 });
                 testResult.addListener("endMeasurement", evt => {
-                    this.info('# endMeasurement '+evt.getData().getFullName());
+                    this.info('# endMeasurement '+ evt.getData()[0].test.getFullName());
                 });
                 testResult.addListener("endTest", evt => {
                     let test = evt.getData().getFullName();
