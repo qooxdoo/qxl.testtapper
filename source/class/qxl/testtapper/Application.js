@@ -61,23 +61,22 @@ qx.Class.define("qxl.testtapper.Application", {
 		    this.getRoot().add(main_container);
 
 
-            let matcher = new RegExp("\\.test\\." + (cfg.module || ''));
-
-
             if (cfg.module) {
                 this.log("# running only tests that match " + cfg.module);
             }
-            let clazzes = Object.keys(qx.Class.$$registry)
-            .filter(clazz => clazz.match(matcher) && (qx.Class.$$registry[clazz].$$classtype === undefined))
-            .sort();
+            this.loader = new qx.dev.unit.TestLoaderBasic();
+            this.loader.setTestNamespace("qx.test");
+            let clazzes = this.loader.getSuite().getTestClasses();
+
             let pChain = new qx.Promise((resolve,reject) => resolve(true));
-            clazzes.forEach(
+            
+			clazzes.forEach(
                 clazz => {
                     pChain = pChain.then(()=>
                         this.runAll(
-                            qx.Class.$$registry[clazz]
+                            clazz
                         ).then(()=>{
-                            this.info(`# done testing ${clazz}.`);
+                            this.info(`# done testing ${clazz.getName()}.`);
                         })
                     );
                 }
@@ -96,23 +95,21 @@ qx.Class.define("qxl.testtapper.Application", {
         },
         runAll: function(clazz) {
             let that = this;
-            this.info(`# start testing ${clazz}.`);
-            let methodNames = Object.keys(clazz.prototype)
-                .filter(name => name.match(/^test/) && qx.Bootstrap.isFunctionOrAsyncFunction(clazz.prototype[name]))
-                .sort();
+            this.info(`# start testing ${clazz.getName()}.`);
+
+            let methods = clazz.getTestMethods();
+			
             return new qx.Promise(resolve => {
-                let pos = clazz.classname.lastIndexOf(".");
-                let pkgname = clazz.classname.substring(0, pos);
-                let loader = new qx.dev.unit.TestLoaderBasic(pkgname);
+				
                 let testResult = new qx.dev.unit.TestResult();
                 let methodNameIndex = -1;
                 let next = () => {
                     methodNameIndex++;
-                    if (methodNameIndex < methodNames.length) {
-                        loader.runTests(
+                    if (methodNameIndex < methods.length) {
+                        that.loader.runTests(
                             testResult,
-                            clazz.classname,
-                            methodNames[methodNameIndex]
+                            clazz.getName(),
+                            methods[methodNameIndex].getName()
                         );
                     }
                     else {
@@ -143,7 +140,6 @@ qx.Class.define("qxl.testtapper.Application", {
                     setTimeout(next, 0);
                 };
 
-                loader.getSuite().add(clazz);
                 testResult.addListener("startTest", evt => {
                     this.info('# start ' +evt.getData().getFullName());
                 });
