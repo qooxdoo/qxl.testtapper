@@ -65,7 +65,7 @@ qx.Class.define("qxl.testtapper.Application", {
                 this.log("# running only tests that match " + cfg.module);
             }
             this.loader = new qx.dev.unit.TestLoaderBasic();
-            this.loader.setTestNamespace("qx.test");
+            this.loader.setTestNamespace("qxl.testtapperdemo.test");
             let clazzes = this.loader.getSuite().getTestClasses();
 
             let pChain = new qx.Promise((resolve,reject) => resolve(true));
