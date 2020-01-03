@@ -7,5 +7,5 @@
     "puppeteer-to-istanbul": "^1.2.2",
     "yargs": "^13.2.4"
   },
-  "version": "0.4.2"
+  "version": "0.4.4"
 }
