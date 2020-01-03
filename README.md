@@ -1,4 +1,4 @@
-# Qooxdoo TAP Testrunner
+# Qooxdoo testTAPper
 
 [![Build Status](https://travis-ci.org/qooxdoo/qxl.testtapper.svg?branch=master)](https://travis-ci.org/qooxdoo/qxl.testtapper)
 [![Coverage Status](https://coveralls.io/repos/github/qooxdoo/qxl.testtapper/badge.svg?branch=master)](https://coveralls.io/github/qooxdoo/qxl.testtapper?branch=master)
@@ -11,7 +11,7 @@ The is a TAP testrunner for Qooxdoo.
 
 http://www.qooxdoo.org/qxl.testtapper/
 
-## Adding an testrunnner to your own code
+## Adding an testTAPper to your own code
 ```
 $ npx qx package update
 $ npx qx package install qooxdoo/qxl.testtapper
@@ -37,7 +37,7 @@ $ node_modules/.bin/nyc report --reporter=text-lcov | node_modules/.bin/coverall
 
 if you start `run.js` without arguments it ouputs a little help
 
-## Developing API Viewer
+## Developing testTAPper
 Clone this repo and compile it:
 
 ```
