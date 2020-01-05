@@ -42,14 +42,13 @@ async function goTest () {
     }
     href = "file://" + href;
   }
-  href = new URL(href);
-
   if (argv.module) {
-    href.hash = "module=" + argv.module;
+    href += "?class=" + argv.module;
   }
 
-  console.log("CALL "+ href.href);
+  href = new URL(href);
 
+  console.log("CALL "+ href.href);
   let notOk = 0;
   let Ok = 0;
   let browser = await puppeteer.launch();
