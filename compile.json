@@ -37,10 +37,6 @@
   "locales": [
     "en"
   ],
-  "libraries": [
-      "../../qooxdoo/framework",
-      "."
-  ],
   "serve": {
      "listenPort": 8089
   }
