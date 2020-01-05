@@ -31,7 +31,7 @@ Then browse to [http://localhost:8080](http://localhost:8080).  You will see tha
 If you want to run the tests from the command line you need a headless browser to run the tests. TestTAPper uses the puppeteer node module which comes with a built in copy of headless chrome and is thus very simple to use
 
 ```
-$ node source-output/resource/qxl/testtapper/run.js http://localhost:8080
+$ node compile/source/resource/qxl/testtapper/run.js http://localhost:8080
 $ node_modules/.bin/nyc report --reporter=text-lcov | node_modules/.bin/coveralls
 ```
 

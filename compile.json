@@ -11,11 +11,6 @@
       ]
     }
   ],
-//  "include": [
-//    "qx.*",
-//    "q",
-//    "qxWeb"
-//  ],
   "exclude": [
     "qx.test.*",
     "qx.module.Blocker",
@@ -24,13 +19,13 @@
   "targets": [
     {
       "type": "source",
-      "outputPath": "source-output",
+      "outputPath": "compiled/source",
       "bundle": {
         "include": "qx.*"
       }
     },{
       "type": "build",
-      "outputPath": "build-output"
+      "outputPath": "compiled/build"
     }
   ],
 
@@ -38,6 +33,10 @@
 
   "locales": [
     "en"
+  ],
+  "libraries": [
+      "../../qooxdoo/framework",
+      "."
   ],
   "serve": {
      "listenPort": 8089
