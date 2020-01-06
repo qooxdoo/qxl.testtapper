@@ -8,7 +8,10 @@
       "theme": "qx.theme.Simple",
       "include": [
         "qxl.testtapperdemo.test.*"
-      ]
+      ],
+      "environment": {
+        "testtapper.testNameSpace": "qxl.testtapperdemo.test"
+      }
     }
   ],
   "exclude": [
@@ -33,10 +36,6 @@
 
   "locales": [
     "en"
-  ],
-  "libraries": [
-      "../../qooxdoo/framework",
-      "."
   ],
   "serve": {
      "listenPort": 8089
