@@ -44,7 +44,7 @@ jobs:
       uses: actions/cache@v1
       with:
         path: node_modules
-        key: ${{ matrix.os }}-node-${{ matrix.perl }}-${{ hashFiles('package-lock.json') }}
+        key: ${{ matrix.os }}-node-${{ matrix.node }}-${{ hashFiles('package-lock.json') }}
         
     - name: Install Dependencies
       if: steps.node-cache.outputs.cache-hit != 'true'
@@ -54,8 +54,10 @@ jobs:
       run: ./runtests.sh
 
     - name: Deploy Pages
+      if: github.event_name == 'pull_request' && github.event.action == 'merged'
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        # ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BRANCH: master
         FOLDER: build-output
