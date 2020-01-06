@@ -44,7 +44,7 @@ jobs:
       uses: actions/cache@v1
       with:
         path: node_modules
-        key: ${{ matrix.os }}-node-${{ matrix.perl }}-${{ hashFiles('package-lock.json') }}
+        key: ${{ matrix.os }}-node-${{ matrix.node }}-${{ hashFiles('package-lock.json') }}
         
     - name: Install Dependencies
       if: steps.node-cache.outputs.cache-hit != 'true'
