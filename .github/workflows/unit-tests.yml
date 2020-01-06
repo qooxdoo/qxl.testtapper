@@ -54,6 +54,7 @@ jobs:
       run: ./runtests.sh
 
     - name: Deploy Pages
+      if: github.event_name == 'pull_request' && github.event.action == 'merged'
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
         # ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
