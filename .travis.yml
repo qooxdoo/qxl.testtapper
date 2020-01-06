@@ -4,7 +4,7 @@ node_js: "10"
 script:
   - ./runtests.sh
   - npx qx compile --machine-readable --target=build
-  - rm build-output/*.json
+  - rm compiled/source/*.json
 
 after_success:
   - npx nyc report --reporter=text-lcov | npx coveralls
