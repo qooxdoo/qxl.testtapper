@@ -1,0 +1,61 @@
+name: Unit Tests
+
+on: 
+  push:
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'    
+
+jobs:
+
+  build:
+    
+    strategy:
+      matrix:
+        os:
+          - ubuntu-18.04
+          # Alien::MSYS fails to install on windows
+          # - windows-latest
+
+        node:
+          - '10.x'
+          - '11.x'
+
+      fail-fast: false
+
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node }}
+
+    - name: Cache
+      id: node-cache
+      uses: actions/cache@v1
+      with:
+        path: node_modules
+        key: ${{ matrix.os }}-node-${{ matrix.perl }}-${{ hashFiles('package-lock.json') }}
+        
+    - name: Install Dependencies
+      if: steps.node-cache.outputs.cache-hit != 'true'
+      run: npm install
+
+    - name: Run Tests
+      run: ./runtests.sh
+
+    - name: Deploy Pages
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        BRANCH: master
+        FOLDER: build-output
