@@ -1,7 +1,6 @@
 # Qooxdoo testTAPper
 
-[![Build Status](https://travis-ci.org/qooxdoo/qxl.testtapper.svg?branch=master)](https://travis-ci.org/qooxdoo/qxl.testtapper)
-[![Coverage Status](https://coveralls.io/repos/github/qooxdoo/qxl.testtapper/badge.svg?branch=master)](https://coveralls.io/github/qooxdoo/qxl.testtapper?branch=master)
+![](https://github.com/qooxdoo/qxl.testtapper/workflows/Unit%20Tests/badge.svg?branch=master)
 
 The is a TAP testrunner for Qooxdoo.
 
