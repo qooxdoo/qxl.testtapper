@@ -60,4 +60,4 @@ jobs:
         # ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BRANCH: master
-        FOLDER: build-output
+        FOLDER: compiled/build
