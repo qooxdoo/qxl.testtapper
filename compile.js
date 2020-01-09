@@ -15,36 +15,21 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         qx.tool.compiler.Console.print("Please install testtapper application in compile.json");
         return qx.Promise.resolve(false);
       }
-      let result = data.getData ?data.getData():{};
+      let result = data.getData?data.getData():{};
       return this.runTest(app, result);
     },
-
-     require: function(module) {
-        try {
-          require.resolve(module);
-        } catch (e) {
-          if ( e.code === 'MODULE_NOT_FOUND' ) {
-            this.loadNpmModule(module);
-          }
-        }
-        return require(module);
-     }, 
-
-     loadNpmModule: function(module) {
-       const {execSync} = require("child_process");
-       let s = `npm install --no-save --no-package-lock ${module}`;
-       qx.tool.compiler.Console.info(s);
-       execSync(s, {
-         stdio: "inherit"
-       });
-     },
 
      runTest : async function (app, result) {
       return new qx.Promise(async (resolve) => {
         const puppeteer = this.require("puppeteer");
         const pti = this.require("puppeteer-to-istanbul");
-        let href = `http://localhost:${app.port}/${app.name}/`;
-        href = new URL(href);
+        let outputDir = "";
+        if (this.getCompilerApi().getCommand().showStartpage()) {
+          let target = app.maker.getTarget(); 
+          outputDir = target.getOutputDir();
+        }
+        let href = `http://localhost:${app.port}/${outputDir}${app.name}/`;
+      href = new URL(href);
         if (app.argv.module) {
           href.hash = "module=" + argv.module;
         }
@@ -63,7 +48,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             await pti.write(jsCoverage);
             await browser.close();
             result.errorCode += notOk;
-            result[app.name] = { 
+            result[app.name] = {
               notOk: notOk,
               ok: Ok
             };
@@ -84,7 +69,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         await page.goto(href.href);
       });
     },
-    
+
     getTestApp: function(classname) {
       let command = this.getCompilerApi().getCommand();
       let maker = null;
@@ -112,7 +97,8 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       return {
         name: app.getName(),
         port: config.serve.listenPort,
-        argv: command.argv
+        argv: command.argv,
+        maker: maker
       }
     }
 
