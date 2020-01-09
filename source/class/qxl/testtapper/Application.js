@@ -67,7 +67,7 @@ qx.Class.define("qxl.testtapper.Application", {
             this.loader.setTestNamespace(namespace);
             let clazzes = this.loader.getSuite().getTestClasses();
             if (cfg.class) {
-                let matcher = new RegExp(namespace + "." + cfg.class);                
+                let matcher = new RegExp(cfg.class);                
                 this.log("# running only test classes that match " + matcher);
                 clazzes = clazzes.filter(clazz => clazz.getName().match(matcher));
             }
