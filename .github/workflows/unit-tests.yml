@@ -66,3 +66,4 @@ jobs:
         git commit -m "action build"
         git push --force https://${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git master:gh-pages
         rm -rf .git
+        
