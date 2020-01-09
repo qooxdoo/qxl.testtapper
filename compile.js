@@ -29,9 +29,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           outputDir = target.getOutputDir();
         }
         let href = `http://localhost:${app.port}/${outputDir}${app.name}/`;
-      href = new URL(href);
+        href = new URL(href);
         if (app.argv.module) {
-          href.hash = "module=" + argv.module;
+          href.hash = "module=" + app.argv.module;
         }
         qx.tool.compiler.Console.log("CALL "+ href.href);
         let notOk = 0;
@@ -58,7 +58,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             qx.tool.compiler.Console.log(val);
           } else if (val.match(/^ok\s/)) {
             Ok++;
-            qx.tool.compiler.Console.log(val);
+            if (!app.argv.terse) {
+              qx.tool.compiler.Console.log(val);
+            }
           } else if (val.match(/^#/) && app.argv.diag) {
             qx.tool.compiler.Console.log(val);
           } else if (app.argv.verbose) {
