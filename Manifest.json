@@ -31,14 +31,13 @@
       "theme": "qx.theme.Simple",
       "title": "Qooxdoo TestTAPper",
       "environment": {
-        "qx.icontheme": "Tango"
+        "qx.icontheme": "Tango",
+        "testtapper.testNameSpace": "qx.test"
       },
       "include": [
-        "*.test.*",
-        "*.*.test.*"
+        "qx.test.*"
       ],
       "exclude": [
-        "qx.test.*"
       ]
     }
   },
