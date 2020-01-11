@@ -1,29 +1,32 @@
-
-function resolveAfter1Seconds() {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve('resolved');
-    }, 1000);
-  });
-}
-
 qx.Class.define("qxl.testtapperdemo.test.Test09AsyncFunction", {
   extend: qx.dev.unit.TestCase,
   members: {
     "test01: async function": async function () {
-      let value = await resolveAfter1Seconds();
-      this.assertEquals(value,'resolved',"Timeout Resolved");
+      let value = await new Promise((resolve,reject) => {
+        setTimeout(() => {
+          resolve('resolved');
+        }, 1000);
+      });
+      this.assertEquals('resolved', value, "Timeout Resolved");
     },
     "test02: async function fail": async function () {
-      let value = await resolveAfter1Seconds();
-      this.assertEquals(value,'unresolved',"Timeout Resolved");
+      try {
+        let value = await new Promise((resolve,reject) => {
+          setTimeout(() => {
+            reject('unresolved');
+          }, 1000);
+        });
+      } catch(e) {
+        this.assertEquals('unresolved', e, "Timeout Resolved");
+      }
     },
     "test03: async function exception": async function () {
-      let value = await resolveAfter1Seconds();
+      let value = await new Promise((resolve,reject) => {
+        setTimeout(() => {
+          resolve('resolved');
+        }, 1000);
+      });
       unknownFunctionCall();
-    },
-    "test04: one is one": function () {
-      this.assertEquals(1,1,"one is one");
     }
   }
 });
