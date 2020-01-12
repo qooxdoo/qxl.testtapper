@@ -17,16 +17,28 @@ qx.Class.define("qxl.testtapperdemo.test.Test09AsyncFunction", {
           }, 1000);
         });
       } catch(e) {
-        this.assertEquals('unresolved', e, "Timeout Resolved");
+        this.assertEquals('unresolved', e, "Timeout Rejected");
       }
     },
     "test03: async function exception": async function () {
-      let value = await new Promise((resolve,reject) => {
-        setTimeout(() => {
-          resolve('resolved');
-        }, 1000);
-      });
-      unknownFunctionCall();
+      try {
+        let value = await new Promise((resolve,reject) => {
+          unknownFunctionCall();
+        });
+      } catch(exc) {
+        let e = exc;
+        this.assertEquals('unknownFunctionCall is not defined', e.message, "unknownFunctionCall");
+      }
+    },
+    "test04: async exception": async function () {
+      try {
+        let value = await new Promise((resolve,reject) => {
+          throw new Error("exc");
+        });
+      } catch(exc) {
+        let e = exc;
+        this.assertEquals('exc', e.message, "throw Error");
+      }
     }
   }
 });
