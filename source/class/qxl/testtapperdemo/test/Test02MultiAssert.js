@@ -1,18 +1,18 @@
 qx.Class.define("qxl.testtapperdemo.test.Test02MultiAssert", {
   extend: qx.dev.unit.TestCase,
   members: {
-    test00EncDecoding: function() {
+    "test01: Encoding/Decoding": function() {
       var got = qx.util.Base64.decode(qx.util.Base64.encode("foo:bar")).split(":");
-      this.assertIdentical(got[0], "foo");
-      this.assertIdentical(got[1], "bar");
+      this.assertIdentical("foo", got[0]);
+      this.assertIdentical("bar", got[1]);
 
       got = qx.util.Base64.decode(qx.util.Base64.encode("foo:")).split(":");
-      this.assertIdentical(got[0], "foo");
-      this.assertIdentical(got[1], "");
+      this.assertIdentical("foo", got[0]);
+      this.assertIdentical(""   , got[1]);
 
       got = qx.util.Base64.decode(qx.util.Base64.encode("foo:" + null)).split(":");
-      this.assertIdentical(got[0], "foo");
-      this.assertIdentical(got[1], "null");
+      this.assertIdentical("foo" , got[0]);
+      this.assertIdentical("undefined", got[1]);
     }
   }
 
