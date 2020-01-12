@@ -7,7 +7,7 @@ qx.Class.define("qxl.testtapperdemo.test.Test07AsyncTest", {
         },500);
         this.wait(2000);
     },
-    "test01: timeout": function () {
+    "test02: timeout": function () {
         this.wait(500);
     }
   }
