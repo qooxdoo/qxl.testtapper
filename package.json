@@ -1,10 +1,11 @@
 {
   "dependencies": {
-    "@qooxdoo/compiler": "^1.0.0-beta.20190708-0855",
+    "@qooxdoo/compiler": "^1.0.0-beta",
     "coveralls": "^3.0.3",
     "nyc": "^14.1.1",
-    "puppeteer": "^1.17.0",
+    "puppeteer": "^1.20.0",
     "puppeteer-to-istanbul": "^1.2.2",
     "yargs": "^13.2.4"
-  }
+  },
+  "version": "0.4.7"
 }

@@ -7,13 +7,11 @@
    Authors: Tobias Oetiker
 
 ************************************************************************ */
-
 /**
  * Test Runner
  *
  * @asset(qxl/testtapper/run.js)
  */
-
 qx.Class.define("qxl.testtapper.Application", {
     extend: qx.application.Standalone,
     members: {
@@ -37,11 +35,16 @@ qx.Class.define("qxl.testtapper.Application", {
             this._failed = {};
             // eslint-disable-next-line no-undef
             let cfg = {};
-            qx.bom.History.getInstance().getState()
-                .split(';').forEach(item => {
-                    let [key,value] = item.split('=');
-                    cfg[key] = value;
+            if (typeof location !== "undefined" && location.search) {
+                let params = decodeURI(location.search.substring(1));
+                params += "&";
+                params.split('&').forEach(item => {
+                    if (item.length) {
+                       let [key,value] = item.split('=');
+                       cfg[key] = value;
+                    }
                 });
+            }
             let main_container = new qx.ui.container.Composite();
             main_container.setLayout(new qx.ui.layout.VBox());
             main_container.add(
@@ -51,7 +54,6 @@ qx.Class.define("qxl.testtapper.Application", {
                     rich: true
                 })
             );
-//            qx.log.appender.Native;
         	let logger = new qxl.logpane.LogPane();
 			logger.setShowToolBar(false);
 			logger.fetch();
@@ -60,25 +62,23 @@ qx.Class.define("qxl.testtapper.Application", {
 			main_container.setWidth(1024);
 		    this.getRoot().add(main_container);
 
-
-            let matcher = new RegExp("\\.test\\." + (cfg.module || ''));
-
-
-            if (cfg.module) {
-                this.log("# running only tests that match " + cfg.module);
+            this.loader = new qx.dev.unit.TestLoaderBasic();
+            let namespace = qx.core.Environment.get("testtapper.testNameSpace") || "qx.test";
+            this.loader.setTestNamespace(namespace);
+            let clazzes = this.loader.getSuite().getTestClasses();
+            if (cfg.class) {
+                let matcher = new RegExp(cfg.class);                
+                this.log("# running only test classes that match " + matcher);
+                clazzes = clazzes.filter(clazz => clazz.getName().match(matcher));
             }
-            let clazzes = Object.keys(qx.Class.$$registry)
-            .filter(clazz => clazz.match(matcher))
-            .sort();
-            let pChain = new qx.Promise((resolve,reject) => resolve(true));
-            clazzes.forEach(
+
+            let pChain = new qx.Promise((resolve) => resolve(true));
+			clazzes.forEach(
                 clazz => {
                     pChain = pChain.then(()=>
-                        this.runAll(
-                            qx.Class.$$registry[clazz]
-                        ).then(()=>{
-                            this.info(`# done testing ${clazz}.`);
-                        })
+                        this.runAll(cfg, clazz)
+                            .then( () => {this.info(`# done testing ${clazz.getName()}.`);
+                            })
                     );
                 }
             );
@@ -94,25 +94,27 @@ qx.Class.define("qxl.testtapper.Application", {
                 );
             });
         },
-        runAll: function(clazz) {
+
+        runAll: function(cfg, clazz) {
             let that = this;
-            this.info(`# start testing ${clazz}.`);
-            let methodNames = Object.keys(clazz.prototype)
-                .filter(name => name.match(/^test/) && qx.Bootstrap.isFunctionOrAsyncFunction(clazz.prototype[name]))
-                .sort();
+            this.info(`# start testing ${clazz.getName()}.`);
+            let methods = clazz.getTestMethods();
+            if (cfg.method) {
+                let matcher = new RegExp(cfg.method);                
+                this.log("# running only tests that match " + matcher);
+                methods = methods.filter(method => method.getName().match(matcher));
+            }
+
             return new qx.Promise(resolve => {
-                let pos = clazz.classname.lastIndexOf(".");
-                let pkgname = clazz.classname.substring(0, pos);
-                let loader = new qx.dev.unit.TestLoaderBasic(pkgname);
                 let testResult = new qx.dev.unit.TestResult();
                 let methodNameIndex = -1;
                 let next = () => {
                     methodNameIndex++;
-                    if (methodNameIndex < methodNames.length) {
-                        loader.runTests(
+                    if (methodNameIndex < methods.length) {
+                        that.loader.runTests(
                             testResult,
-                            clazz.classname,
-                            methodNames[methodNameIndex]
+                            clazz.getName(),
+                            methods[methodNameIndex].getName()
                         );
                     }
                     else {
@@ -142,8 +144,6 @@ qx.Class.define("qxl.testtapper.Application", {
                     });
                     setTimeout(next, 0);
                 };
-
-                loader.getSuite().add(clazz);
                 testResult.addListener("startTest", evt => {
                     this.info('# start ' +evt.getData().getFullName());
                 });
@@ -151,7 +151,7 @@ qx.Class.define("qxl.testtapper.Application", {
                     this.info('# wait '+evt.getData().getFullName());
                 });
                 testResult.addListener("endMeasurement", evt => {
-                    this.info('# endMeasurement '+evt.getData().getFullName());
+                    this.info('# endMeasurement '+ evt.getData()[0].test.getFullName());
                 });
                 testResult.addListener("endTest", evt => {
                     let test = evt.getData().getFullName();
@@ -169,7 +169,6 @@ qx.Class.define("qxl.testtapper.Application", {
                     that._failed[test] = true;
                     this.info(`ok ${that._cnt} - # SKIP ${test}`);
                 });
-
                 next();
             });
         }

@@ -12,7 +12,7 @@ qx.Class.define("qxl.testtapperdemo.test.Test02MultiAssert", {
 
       got = qx.util.Base64.decode(qx.util.Base64.encode("foo:" + null)).split(":");
       this.assertIdentical(got[0], "foo");
-      this.assertIdentical(got[1], "undefined");
+      this.assertIdentical(got[1], "null");
     }
   }
 

@@ -8,7 +8,10 @@
       "theme": "qx.theme.Simple",
       "include": [
         "qxl.testtapperdemo.test.*"
-      ]
+      ],
+      "environment": {
+        "testtapper.testNameSpace": "qxl.testtapperdemo.test"
+      }
     }
   ],
   "exclude": [
@@ -19,27 +22,13 @@
   "targets": [
     {
       "type": "source",
-      "outputPath": "source-output",
+      "outputPath": "compiled/source",
       "bundle": {
         "include": "qx.*"
-      },
-      "babelOptions": {
-        "targets": {
-        "edge": "18",
-        "chrome": "73",
-        "firefox": "66"
-        }
       }
     },{
       "type": "build",
-      "outputPath": "build-output",
-      "babelOptions": {
-        "targets": {
-        "edge": "18",
-        "chrome": "73",
-        "firefox": "66"
-        }
-      }
+      "outputPath": "compiled/build"
     }
   ],
 
