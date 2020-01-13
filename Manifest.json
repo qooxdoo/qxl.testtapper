@@ -31,19 +31,19 @@
       "theme": "qx.theme.Simple",
       "title": "Qooxdoo TestTAPper",
       "environment": {
-        "qx.icontheme": "Tango"
+        "qx.icontheme": "Tango",
+        "testtapper.testNameSpace": "qx.test"
       },
       "include": [
-        "*.test.*",
-        "*.*.test.*"
+        "qx.test.*"
       ],
       "exclude": [
-        "qx.test.*"
       ]
     }
   },
   "requires": {
     "@qooxdoo/compiler": "^1.0.0-beta",
-    "@qooxdoo/framework": "^6.0.0-alpha"
-  }
+    "@qooxdoo/framework": "^6.0.0-alpha",
+    "qooxdoo/qxl.logpane": "^1.0.0-beta.3"
+ }
 }
