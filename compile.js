@@ -29,11 +29,22 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           outputDir = target.getOutputDir();
         }
         let href = `http://localhost:${app.port}/${outputDir}${app.name}/`;
-        href = new URL(href);
-        if (app.argv.module) {
-          href.hash = "module=" + app.argv.module;
+        const { URL } = require("url");
+        let url = new URL(href);
+        let s = ""
+        if (app.argv.method) {
+          s += "method=" + app.argv.method;
         }
-        qx.tool.compiler.Console.log("CALL "+ href.href);
+        if (app.argv.class) {
+          if (s.length > 0) {
+            s += "&";
+          }
+          s += "class=" + app.argv.class;
+        }
+        if (s.length > 0) {
+          url.search = s;
+        }
+        qx.tool.compiler.Console.log("CALL "+ url.href);
         let notOk = 0;
         let Ok = 0;
         let browser = await puppeteer.launch();
@@ -68,7 +79,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           }
         });
         await page.coverage.startJSCoverage();
-        await page.goto(href.href);
+        await page.goto(url.href);
       });
     },
 

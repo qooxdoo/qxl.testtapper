@@ -101,7 +101,7 @@ qx.Class.define("qxl.testtapper.Application", {
             let methods = clazz.getTestMethods();
             if (cfg.method) {
                 let matcher = new RegExp(cfg.method);                
-                this.log("# running only tests that match " + matcher);
+                this.log("# running only test methods that match " + matcher);
                 methods = methods.filter(method => method.getName().match(matcher));
             }
 
