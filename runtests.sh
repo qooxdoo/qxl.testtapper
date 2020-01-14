@@ -3,7 +3,7 @@ npx qx serve --machine-readable --target=source --listen-port=8089 &
 pid=$!
 while ! nc -z localhost 8089; do sleep 1; done
 #node compiled/source/resource/qxl/testtapper/run.js http://localhost:8089/testtapper/
-qx test
+npx qx test
 if [ $? = 5 ]; then
     echo GOOD. Expected 5 tests to fail.
     kill $pid
