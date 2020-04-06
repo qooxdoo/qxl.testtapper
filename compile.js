@@ -6,7 +6,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
   members: {
     load: async function() {
       let command = this.getCompilerApi().getCommand();
-      command.addListener("runTests", this.__onRunTests, this);
+      if (command instanceof qx.tool.cli.commands.Test) {
+         command.addListener("runTests", this.__onRunTests, this);
+      }
     },
 
     __onRunTests: function(data) {
