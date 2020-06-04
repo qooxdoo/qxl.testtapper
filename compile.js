@@ -17,7 +17,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         qx.tool.compiler.Console.print("Please install testtapper application in compile.json");
         return qx.Promise.resolve(false);
       }
-      let result = data.getData?data.getData():{};
+      let result = data.getData();
       return this.runTest(app, result);
     },
 
