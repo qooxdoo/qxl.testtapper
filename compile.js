@@ -8,7 +8,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       let command = this.getCompilerApi().getCommand();
       if (command instanceof qx.tool.cli.commands.Test) {
          command.addListener("runTests", this.__onRunTests, this);
-         command.setNeedsServer(true);
+         if (command.setNeedsServer) {
+          command.setNeedsServer(true);
+        }
       }
     },
 
