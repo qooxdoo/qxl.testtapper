@@ -8,6 +8,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       let command = this.getCompilerApi().getCommand();
       if (command instanceof qx.tool.cli.commands.Test) {
          command.addListener("runTests", this.__onRunTests, this);
+         command.setNeedsServer(true);
       }
     },
 
@@ -17,7 +18,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         qx.tool.compiler.Console.print("Please install testtapper application in compile.json");
         return qx.Promise.resolve(false);
       }
-      let result = data.getData();
+      let result = data.getData?data.getData():{};
       return this.runTest(app, result);
     },
 
@@ -90,7 +91,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       let maker = null;
       let app = null;
       command.getMakers().forEach(tmp => {
-        let apps = tmp.getApplications().filter(app => (app.getClassName() === classname) && app.isBrowserApp);
+        let apps = tmp.getApplications().filter(app => (app.getClassName() === classname) && app.isBrowserApp());
         if (apps.length) {
           if (maker) {
             qx.tool.compiler.Console.print("qx.tool.cli.test.tooManyMakers");
