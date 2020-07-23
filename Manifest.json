@@ -16,7 +16,7 @@
         "email": "tobi@oetiker.ch"
       }
     ],
-    "version": "0.5.1",
+    "version": "0.5.2",
     "sourceViewUri": "https://github.com/qooxdoo/qxl.testtapper/blob/%{qxGitBranch}/source/class/%{classFilePath}#L%{lineNumber}"
   },
   "provides": {
