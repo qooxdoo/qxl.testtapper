@@ -4,6 +4,33 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
   extend: qx.tool.cli.api.LibraryApi,
 
   members: {
+    
+    // @overridden 
+    async initialize() {
+      let yargs = qx.tool.cli.commands.Test.getYargsCommand;
+      qx.tool.cli.commands.Test.getYargsCommand = () => {
+        let args = yargs();
+        args.builder.class = {
+          describe: "only run tests of this class",
+          type: "string"
+        };
+        args.builder.method = {
+          describe: "only run tests of this method",
+          type: "string"
+        };
+        args.builder.diag = {
+          describe: "show diagnostic output",
+          type: "boolean"
+        };
+        args.builder.terse = {
+          describe: "show only summary and errors",
+          type: "boolean"
+        };
+        return args;
+      }
+    },
+
+    // @overridden 
     load: async function() {
       let command = this.getCompilerApi().getCommand();
       if (command instanceof qx.tool.cli.commands.Test) {
@@ -52,7 +79,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         qx.tool.compiler.Console.log("CALL "+ url.href);
         let notOk = 0;
         let Ok = 0;
-        let browser = await puppeteer.launch();
+        let browser = await puppeteer.launch({args: ['--no-sandbox']});
         let page = await browser.newPage();
         page.on("console", async (msg) => {
           let val = msg.text();
