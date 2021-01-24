@@ -90,15 +90,16 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             qx.tool.compiler.Console.info("writing coverage information ...");
             await pti.write(jsCoverage);
             await browser.close();
-            result.errorCode += notOk;
             result[app.name] = {
               notOk: notOk,
               ok: Ok
             };
+            result.setExitCode(notOk);
             resolve(result[app.name]);
           } else if (val.match(/^not ok /)) {
             notOk++;
             qx.tool.compiler.Console.log(val);
+            result.setExitCode(notOk);
           } else if (val.match(/^ok\s/)) {
             Ok++;
             if (!app.argv.terse) {
