@@ -44,9 +44,12 @@ jobs:
         path: node_modules
         key: ${{ matrix.os }}-node-${{ matrix.node }}-${{ hashFiles('package-lock.json') }}
         
-    - name: Install Dependencies
-      if: steps.node-cache.outputs.cache-hit != 'true'
-      run: npm install
+      - name: Install Playwright Dependencies
+        uses: microsoft/playwright-github-action@v1
+
+      - name: Install NPM Dependencies
+        run: npm install @qooxdoo/compiler --no-save --no-package-lock
+
 
     - name: Run Tests
       run: ./runtests.sh
