@@ -37,12 +37,6 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
 
-    - name: Cache
-      id: node-cache
-      uses: actions/cache@v1
-      with:
-        path: node_modules
-        key: ${{ matrix.os }}-node-${{ matrix.node }}-${{ hashFiles('package-lock.json') }}
         
       - name: Install Playwright Dependencies
         uses: microsoft/playwright-github-action@v1
