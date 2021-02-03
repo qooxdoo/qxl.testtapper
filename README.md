@@ -14,8 +14,6 @@ http://www.qooxdoo.org/qxl.testtapper/
 ```
 $ npx qx package update
 $ npx qx package install qooxdoo/qxl.testtapper
-$ echo 10 > .nvmrc
-$ npm i puppeteer yargs nyc coveralls puppeteer-to-istanbul
 ```
 
 Now edit the `"myapp.test.*"` entry in your `compile.json` file to point to the
@@ -30,11 +28,9 @@ Then browse to [http://localhost:8080](http://localhost:8080).  You will see tha
 If you want to run the tests from the command line you need a headless browser to run the tests. TestTAPper uses the puppeteer node module which comes with a built in copy of headless chrome and is thus very simple to use
 
 ```
-$ node compile/source/resource/qxl/testtapper/run.js http://localhost:8080
-$ node_modules/.bin/nyc report --reporter=text-lcov | node_modules/.bin/coveralls
+$ npx qx test
 ```
 
-if you start `run.js` without arguments it ouputs a little help
 
 ## Developing testTAPper
 Clone this repo and compile it:

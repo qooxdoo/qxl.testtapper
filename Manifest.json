@@ -14,9 +14,13 @@
       {
         "name": "Tobias Oetiker (oetiker)",
         "email": "tobi@oetiker.ch"
+      },
+      {
+        "name": "Henner Kollmann (hkollmann)",
+        "email": "Henner.Kollmann@gmx.de"
       }
     ],
-    "version": "0.5.4",
+    "version": "1.0.0",
     "sourceViewUri": "https://github.com/qooxdoo/qxl.testtapper/blob/%{qxGitBranch}/source/class/%{classFilePath}#L%{lineNumber}"
   },
   "provides": {
@@ -42,7 +46,6 @@
   },
   "requires": {
     "@qooxdoo/compiler": "^1.0.0-beta",
-    "@qooxdoo/framework": "^6.0.0-alpha",
-    "qooxdoo/qxl.logpane": "^1.0.0-beta.3"
+    "@qooxdoo/framework": "^6.0.0-alpha"
   }
 }

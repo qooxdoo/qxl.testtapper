@@ -134,7 +134,7 @@ qx.Class.define("qxl.testtapper.Application", {
 
       // loader
       this.loader = new qx.dev.unit.TestLoaderBasic();
-      let namespace = qx.core.Environment.get("testtapper.testNameSpace") || "qx.test";
+      let namespace = qx.core.Environment.get("qxl.testtapper.testNameSpace") || "qx.test";
       this.loader.setTestNamespace(namespace);
       let clazzes = this.loader.getSuite().getTestClasses();
       if (cfg.class) {

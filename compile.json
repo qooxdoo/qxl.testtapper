@@ -1,7 +1,6 @@
 {
   "$schema": "https://qooxdoo.org/schema/compile-1-0-0.json",
-  "applications": [
-    {
+  "applications": [{
       "class": "qxl.testtapper.Application",
       "name": "testtapper",
       "title": "TestTAPper - The Qooxdoo Test Runner",
@@ -10,7 +9,13 @@
         "qxl.testtapperdemo.test.*"
       ],
       "environment": {
-        "testtapper.testNameSpace": "qxl.testtapperdemo.test"
+        "qxl.testtapper.testNameSpace": "qxl.testtapperdemo.test",
+        "qxl.testtapper.coverage": false,
+        "qxl.testtapper.headless": true,
+        "qxl.testtapper.browsers": [
+          "chromium",
+          "firefox"
+        ]
       }
     }
   ],
@@ -19,16 +24,16 @@
     "qx.module.Blocker",
     "qx.module.Placement"
   ],
-  "targets": [
-    {
+  "targets": [{
       "type": "source",
       "outputPath": "compiled/source",
       "bundle": {
         "include": "qx.*"
       }
-    },{
+    }, {
       "type": "build",
-      "outputPath": "compiled/build"
+      "outputPath": "compiled/build",
+      "deployPath": "html"
     }
   ],
 
@@ -38,6 +43,6 @@
     "en"
   ],
   "serve": {
-     "listenPort": 8089
+    "listenPort": 8080
   }
 }
