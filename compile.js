@@ -94,7 +94,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           }
           const context = await browser.launch(launchArgs);
           const page = await context.newPage();
-          let cov = (app.argv.coverage ?? app.environment["qxl.testtapper.coverage"] ?? false) && (browserType === "chromium");
+          let cov = ((app.argv.coverage === null)?(app.environment["qxl.testtapper.coverage"] === null?false:app.environment["qxl.testtapper.coverage"]):app.argv.coverage) && (browserType === "chromium");
           if (cov) {
             await page.coverage.startJSCoverage();
           }
