@@ -86,7 +86,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
               '--no-sandbox',
               '--disable-setuid-sandbox'
             ],
-            headless: (app.argv.headless === null)?(app.environment["qxl.testtapper.headless"] === null)?true:app.environment["qxl.testtapper.headless"]):app.argv.headless;
+            headless: (app.argv.headless === null)?((app.environment["qxl.testtapper.headless"] === null)?true:app.environment["qxl.testtapper.headless"]):app.argv.headless
           };
           const browser = playwright[browserType];
           if (!browser) {
