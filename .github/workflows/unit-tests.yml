@@ -38,11 +38,11 @@ jobs:
         node-version: ${{ matrix.node }}
 
         
-      - name: Install Playwright Dependencies
-        uses: microsoft/playwright-github-action@v1
+    - name: Install Playwright Dependencies
+      uses: microsoft/playwright-github-action@v1
 
-      - name: Install NPM Dependencies
-        run: npm install @qooxdoo/compiler --no-save --no-package-lock
+    - name: Install NPM Dependencies
+      run: npm install @qooxdoo/compiler --no-save --no-package-lock
 
 
     - name: Run Tests
