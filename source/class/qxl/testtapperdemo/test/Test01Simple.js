@@ -8,10 +8,10 @@ qx.Class.define("qxl.testtapperdemo.test.Test01Simple", {
       console.debug("# Teardown for TestCase");
     },
     "test01: got array ?": function () {
-        this.assertArray([],"This is an array");
+        this.assertArray([], "This is an array");
     },
     "test02: assert 1==1": function () {
-      this.assert(1==1,"One equals one");
+      this.assert(1==1, "One equals one");
     }
   }
 });

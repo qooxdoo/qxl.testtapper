@@ -11,7 +11,7 @@ qx.Class.define("qxl.testtapperdemo.test.Test06SkipTest", {
     "test02: Skip Test followed by Exception": function () {
         this.require(["nevertrue"]);
         this.unknownFunction();
-    },
+    }
   }
 
 });

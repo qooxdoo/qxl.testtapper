@@ -36,6 +36,11 @@
       "deployPath": "html"
     }
   ],
+  "eslintConfig": {
+    "parserOptions": {
+      "ecmaVersion": 2018
+    }
+  },
 
   "defaultTarget": "source",
 

@@ -40,7 +40,7 @@ qx.Class.define("qxl.testtapper.Application", {
     addTreeItem: function(status, testNumber, testClass, testName, message="") {
       let classNode = this.__model.getChildren().toArray().find(item => item.getLabel() === testClass);
       if (!classNode) {
-        classNode =  qx.data.marshal.Json.createModel({
+        classNode = qx.data.marshal.Json.createModel({
           label: testClass,
           children: [],
           numberPassed: 0,
@@ -48,7 +48,7 @@ qx.Class.define("qxl.testtapper.Application", {
         });
         this.__model.getChildren().append(classNode);
       }
-      let modelItem =  qx.data.marshal.Json.createModel({
+      let modelItem = qx.data.marshal.Json.createModel({
         label: testNumber + " " + testName,
         numberPassed: Number(status === "ok"),
         numberFailed: Number(status === "not ok"),
@@ -57,8 +57,8 @@ qx.Class.define("qxl.testtapper.Application", {
       classNode.getChildren().push(modelItem);
       // update parent nodes
       [classNode, this.__model].forEach(node => {
-        node.setNumberPassed(node.getChildren().reduce((acc,curr) => acc + curr.getNumberPassed(),0));
-        node.setNumberFailed(node.getChildren().reduce((acc,curr) => acc + curr.getNumberFailed(),0));
+        node.setNumberPassed(node.getChildren().reduce((acc, curr) => acc + curr.getNumberPassed(), 0));
+        node.setNumberFailed(node.getChildren().reduce((acc, curr) => acc + curr.getNumberFailed(), 0));
       });
     },
 
@@ -80,9 +80,9 @@ qx.Class.define("qxl.testtapper.Application", {
       if (typeof location !== "undefined" && location.search) {
         let params = decodeURI(location.search.substring(1));
         params += "&";
-        params.split('&').forEach(item => {
+        params.split("&").forEach(item => {
           if (item.length) {
-            let [key,value] = item.split('=');
+            let [key, value] = item.split("=");
             cfg[key] = value;
           }
         });
@@ -143,12 +143,13 @@ qx.Class.define("qxl.testtapper.Application", {
         clazzes = clazzes.filter(clazz => clazz.getName().match(matcher));
       }
 
-      let pChain = new qx.Promise((resolve) => resolve(true));
+      let pChain = new qx.Promise(resolve => resolve(true));
       clazzes.forEach(
         clazz => {
-          pChain = pChain.then(()=>
+          pChain = pChain.then(() =>
             this.runAll(cfg, clazz)
-              .then( () => {this.info(`# done testing ${clazz.getName()}.`);
+              .then(() => {
+ this.info(`# done testing ${clazz.getName()}.`);
               })
           );
         }
@@ -181,14 +182,13 @@ qx.Class.define("qxl.testtapper.Application", {
               clazz.getName(),
               methods[methodNameIndex].getName()
             );
-          }
-          else {
+          } else {
             resolve();
           }
         };
         let showExceptions = arr => {
           arr.forEach(item => {
-            if (item.test.getFullName){
+            if (item.test.getFullName) {
               let test = item.test.getFullName();
               that._failed[test] = true;
               that._cnt++;
@@ -198,35 +198,33 @@ qx.Class.define("qxl.testtapper.Application", {
                   message = item.exception.message;
                   this.info(`not ok ${that._cnt} - ${test} - ${message}`);
                   let [testClass, ...testName] = test.split(":");
-                  this.addTreeItem("not ok",that._cnt, testClass, testName.join(""), message);
-                }
-                else {
-                  this.error('# '+item.exception);
+                  this.addTreeItem("not ok", that._cnt, testClass, testName.join(""), message);
+                } else {
+                  this.error("# "+item.exception);
                 }
               }
-            }
-            else {
-              this.error('Unexpected Error - ',item);
+            } else {
+              this.error("Unexpected Error - ", item);
             }
           });
           setTimeout(next, 0);
         };
         testResult.addListener("startTest", evt => {
-          this.info('# start ' +evt.getData().getFullName());
+          this.info("# start " +evt.getData().getFullName());
         });
         testResult.addListener("wait", evt => {
-          this.info('# wait '+evt.getData().getFullName());
+          this.info("# wait "+evt.getData().getFullName());
         });
         testResult.addListener("endMeasurement", evt => {
-          this.info('# endMeasurement '+ evt.getData()[0].test.getFullName());
+          this.info("# endMeasurement "+ evt.getData()[0].test.getFullName());
         });
         testResult.addListener("endTest", evt => {
           let test = evt.getData().getFullName();
-          if (!that._failed[test]){
+          if (!that._failed[test]) {
             that._cnt++;
             this.info(`ok ${that._cnt} - ` + test);
             let [testClass, ...testName] = test.split(":");
-            this.addTreeItem("ok",that._cnt, testClass, testName.join(""));
+            this.addTreeItem("ok", that._cnt, testClass, testName.join(""));
           }
           setTimeout(next, 0);
         });

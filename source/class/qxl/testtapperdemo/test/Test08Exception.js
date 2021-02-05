@@ -3,6 +3,6 @@ qx.Class.define("qxl.testtapperdemo.test.Test08Exception", {
   members: {
     "test01: die baby die": function () {
         this.callUnknownFunction();
-    },
+    }
   }
 });

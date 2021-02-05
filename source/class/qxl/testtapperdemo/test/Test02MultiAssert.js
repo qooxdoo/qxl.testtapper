@@ -8,10 +8,10 @@ qx.Class.define("qxl.testtapperdemo.test.Test02MultiAssert", {
 
       got = qx.util.Base64.decode(qx.util.Base64.encode("foo:")).split(":");
       this.assertIdentical("foo", got[0]);
-      this.assertIdentical(""   , got[1]);
+      this.assertIdentical("", got[1]);
 
       got = qx.util.Base64.decode(qx.util.Base64.encode("foo:" + null)).split(":");
-      this.assertIdentical("foo" , got[0]);
+      this.assertIdentical("foo", got[0]);
       this.assertIdentical("null", got[1]);
     }
   }
