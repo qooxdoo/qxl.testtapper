@@ -46,6 +46,7 @@
   },
   "requires": {
     "@qooxdoo/compiler": "^1.0.0",
-    "@qooxdoo/framework": "^6.0.0"
+    "@qooxdoo/framework": "^6.0.0 || ^7.0.0-beta",
+    "qooxdoo/qooxdoo.logpane": "^1.0.2"
   }
 }
