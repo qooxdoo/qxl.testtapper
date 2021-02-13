@@ -80,7 +80,8 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         try {
           const playwright = this.require('playwright');
           const v8toIstanbul = this.require('v8-to-istanbul');
-          console.info("TESTTAPPER: Running test in " + browserType);
+          console.log("TAP version 13");
+          console.log("# TESTTAPPER: Running tests in " + browserType);
           const launchArgs = {
             args: [
               '--no-sandbox',
