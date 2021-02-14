@@ -187,7 +187,7 @@ qx.Class.define("qxl.testtapper.Application", {
           }
         };
         let startTime;
-        let numberFormat = new qx.util.format.NumberFormat();
+        let numberFormat = new qx.util.format.NumberFormat("en");
         numberFormat.set({
           maximumFractionDigits: 2,
           minimumFractionDigits: 2,
