@@ -23,21 +23,21 @@ qx.Class.define("qxl.testtapper.Application", {
     _failed: null,
     __tree: null,
     __model: null,
-    log: function(text) {
+    log: function (text) {
       console.log(text);
       qx.log.Logger.debug(text);
     },
-    info: function(text) {
+    info: function (text) {
       console.info(text);
       qx.log.Logger.info(text);
     },
-    error: function(text) {
+    error: function (text) {
       console.error(text);
       qx.log.Logger.error(text);
     },
 
     // add an item in the tree
-    addTreeItem: function(status, testNumber, testClass, testName, message="") {
+    addTreeItem: function (status, testNumber, testClass, testName, message = "") {
       let classNode = this.__model.getChildren().toArray().find(item => item.getLabel() === testClass);
       if (!classNode) {
         classNode = qx.data.marshal.Json.createModel({
@@ -71,7 +71,7 @@ qx.Class.define("qxl.testtapper.Application", {
       };
     },
 
-    main: function() {
+    main: function () {
       this.base(arguments);
       this._cnt = 0;
       this._failed = {};
@@ -97,7 +97,7 @@ qx.Class.define("qxl.testtapper.Application", {
           rich: true
         })
       );
-      this.getRoot().add(main_container, {edge:5});
+      this.getRoot().add(main_container, { edge: 5 });
 
       // tree
       var scroller = new qx.ui.container.Scroll();
@@ -128,7 +128,7 @@ qx.Class.define("qxl.testtapper.Application", {
 
       // splitpane
       var pane = new qx.ui.splitpane.Pane("vertical");
-      main_container.add(pane, {flex:1});
+      main_container.add(pane, { flex: 1 });
       pane.add(scroller);
       pane.add(logger);
 
@@ -149,7 +149,7 @@ qx.Class.define("qxl.testtapper.Application", {
           pChain = pChain.then(() =>
             this.runAll(cfg, clazz)
               .then(() => {
- this.info(`# done testing ${clazz.getName()}.`);
+                this.info(`# done testing ${clazz.getName()}.`);
               })
           );
         }
@@ -161,7 +161,7 @@ qx.Class.define("qxl.testtapper.Application", {
       });
     },
 
-    runAll: function(cfg, clazz) {
+    runAll: function (cfg, clazz) {
       let that = this;
       this.info(`# start testing ${clazz.getName()}.`);
       let methods = clazz.getTestMethods();
@@ -186,9 +186,18 @@ qx.Class.define("qxl.testtapper.Application", {
             resolve();
           }
         };
+        let startTime;
+        let numberFormat = new qx.util.format.NumberFormat();
+        numberFormat.set({
+          maximumFractionDigits: 2,
+          minimumFractionDigits: 2,
+          postfix: " ms"
+        });
         let showExceptions = arr => {
           arr.forEach(item => {
             if (item.test.getFullName) {
+              let endTime = new Date();
+              let timeDiff = endTime - startTime;
               let test = item.test.getFullName();
               that._failed[test] = true;
               that._cnt++;
@@ -196,11 +205,11 @@ qx.Class.define("qxl.testtapper.Application", {
               if (item.exception) {
                 if (item.exception.message) {
                   message = item.exception.message;
-                  this.info(`not ok ${that._cnt} - ${test} - ${message}`);
+                  this.info(`not ok ${that._cnt} - ${test} - [${numberFormat.format(timeDiff)}] - ${message}`);
                   let [testClass, ...testName] = test.split(":");
                   this.addTreeItem("not ok", that._cnt, testClass, testName.join(""), message);
                 } else {
-                  this.error("# "+item.exception);
+                  this.error("# " + item.exception);
                 }
               }
             } else {
@@ -210,19 +219,22 @@ qx.Class.define("qxl.testtapper.Application", {
           setTimeout(next, 0);
         };
         testResult.addListener("startTest", evt => {
-          this.info("# start " +evt.getData().getFullName());
+          this.info("# start " + evt.getData().getFullName());
+          startTime = performance.now();
         });
         testResult.addListener("wait", evt => {
-          this.info("# wait "+evt.getData().getFullName());
+          this.info("# wait " + evt.getData().getFullName());
         });
         testResult.addListener("endMeasurement", evt => {
-          this.info("# endMeasurement "+ evt.getData()[0].test.getFullName());
+          this.info("# endMeasurement " + evt.getData()[0].test.getFullName());
         });
         testResult.addListener("endTest", evt => {
+          let endTime = performance.now();
+          let timeDiff = endTime - startTime;
           let test = evt.getData().getFullName();
           if (!that._failed[test]) {
             that._cnt++;
-            this.info(`ok ${that._cnt} - ` + test);
+            this.info(`ok ${that._cnt} - ${test} - [${numberFormat.format(timeDiff)}]`);
             let [testClass, ...testName] = test.split(":");
             this.addTreeItem("ok", that._cnt, testClass, testName.join(""));
           }
