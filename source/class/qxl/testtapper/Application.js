@@ -196,7 +196,7 @@ qx.Class.define("qxl.testtapper.Application", {
         let showExceptions = arr => {
           arr.forEach(item => {
             if (item.test.getFullName) {
-              let endTime = new Date();
+              let endTime = performance.now();
               let timeDiff = endTime - startTime;
               let test = item.test.getFullName();
               that._failed[test] = true;
