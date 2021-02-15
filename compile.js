@@ -4,13 +4,14 @@ const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(fs.mkdir);
 const path = require('path');
 const { URL } = require("url");
+const { performance } = require('perf_hooks');
 
 qx.Class.define("qxl.testtapper.compile.LibraryApi", {
   extend: qx.tool.cli.api.LibraryApi,
 
   members: {
 
-    // @overridden 
+    // @overridden
     async initialize() {
       let yargs = qx.tool.cli.commands.Test.getYargsCommand;
       qx.tool.cli.commands.Test.getYargsCommand = () => {
@@ -33,7 +34,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           type: "boolean",
           default: false
         };
-        /*        
+        /*
                 args.builder.coverage = {
                   describe: "writes coverage infos, only working for chromium yet",
                   type: "boolean",
@@ -53,7 +54,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
     },
 
     __enviroment: null,
-    // @overridden 
+    // @overridden
     load: async function () {
       let command = this.getCompilerApi().getCommand();
       if (command instanceof qx.tool.cli.commands.Test) {
@@ -101,11 +102,15 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           }
           let Ok = 0;
           let notOk = 0;
+          let skipped = 0;
+          let startTime;
           page.on("console", async (msg) => {
             let val = msg.text();
             // value is serializable
             if (val.match(/^\d+\.\.\d+$/)) {
-              qx.tool.compiler.Console.info(`DONE testing ${Ok} ok, ${notOk} not ok`);
+              let endTime = performance.now();
+              let timeDiff = endTime - startTime;
+              qx.tool.compiler.Console.info(`DONE testing ${Ok} ok, ${notOk} not ok, ${skipped} skipped - [${timeDiff.toFixed(0)} ms]`);
               if (cov) {
                 qx.tool.compiler.Console.info("writing coverage information ...");
                 const coverage = await page.coverage.stopJSCoverage();
@@ -146,6 +151,11 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             } else if (val.match(/^not ok /)) {
               notOk++;
               qx.tool.compiler.Console.log(val);
+            } else if (val.includes("# SKIP")) {
+              skipped++;
+              if (!app.argv.terse) {
+                qx.tool.compiler.Console.log(val);
+              }
             } else if (val.match(/^ok\s/)) {
               Ok++;
               if (!app.argv.terse) {
@@ -157,6 +167,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
               qx.tool.compiler.Console.log(val);
             }
           });
+          startTime = performance.now();
           page.goto(url.href);
         } catch (e) {
           reject(e);

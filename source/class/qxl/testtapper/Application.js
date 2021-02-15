@@ -201,15 +201,14 @@ qx.Class.define("qxl.testtapper.Application", {
               let test = item.test.getFullName();
               that._failed[test] = true;
               that._cnt++;
-              let message = String(item.exception);
               if (item.exception) {
                 if (item.exception.message) {
-                  message = item.exception.message;
+                  let message = item.exception.message;
                   this.info(`not ok ${that._cnt} - ${test} - [${numberFormat.format(timeDiff)}] - ${message}`);
                   let [testClass, ...testName] = test.split(":");
                   this.addTreeItem("not ok", that._cnt, testClass, testName.join(""), message);
                 } else {
-                  this.error("# " + item.exception);
+                  this.error("# " + item.exception.toString());
                 }
               }
             } else {
@@ -246,7 +245,7 @@ qx.Class.define("qxl.testtapper.Application", {
           that._cnt++;
           let test = evt.getData()[0].test.getFullName();
           that._failed[test] = true;
-          this.info(`ok ${that._cnt} - # SKIP ${test}`);
+          this.info(`ok ${that._cnt} - # SKIP ${test} - ${evt.getData()[0].exception.toString()}`);
         });
         next();
       });
