@@ -203,7 +203,7 @@ qx.Class.define("qxl.testtapper.Application", {
               that._cnt++;
               if (item.exception) {
                 if (item.exception.message) {
-                  let message = item.exception.message;
+                  let message = item.exception.message.toString();
                   this.info(`not ok ${that._cnt} - ${test} - [${numberFormat.format(timeDiff)}] - ${message}`);
                   let [testClass, ...testName] = test.split(":");
                   this.addTreeItem("not ok", that._cnt, testClass, testName.join(""), message);
