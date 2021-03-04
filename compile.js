@@ -42,10 +42,11 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         */
         args.builder.headless = {
           describe: "runs test headless",
-          type: "boolean"
+          type: "boolean",
+          default: false
         };
         args.builder.browsers = {
-          describe: "writes coverage infos, only working for chromium yet",
+          describe: "list of browsers to test against, currently supported chromium, firefox, webkit",
           type: "string"
         };
         return args;
