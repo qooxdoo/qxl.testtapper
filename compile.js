@@ -1,16 +1,15 @@
-const { promisify } = require('util');
-const fs = require('fs');
+const { promisify } = require("util");
+const fs = require("fs");
 const writeFile = promisify(fs.writeFile);
 const mkdir = promisify(fs.mkdir);
-const path = require('path');
+const path = require("path");
 const { URL } = require("url");
-const { performance } = require('perf_hooks');
+const { performance } = require("perf_hooks");
 
 qx.Class.define("qxl.testtapper.compile.LibraryApi", {
   extend: qx.tool.cli.api.LibraryApi,
 
   members: {
-
     // @overridden
     async initialize() {
       let yargs = qx.tool.cli.commands.Test.getYargsCommand;
@@ -18,22 +17,26 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         let args = yargs();
         args.builder.class = {
           describe: "only run tests of this class",
-          type: "string"
+          type: "string",
         };
+
         args.builder.method = {
           describe: "only run tests of this method",
-          type: "string"
+          type: "string",
         };
+
         args.builder.diag = {
           describe: "show diagnostic output",
           type: "boolean",
-          default: false
+          default: false,
         };
+
         args.builder.terse = {
           describe: "show only summary and errors",
           type: "boolean",
-          default: false
+          default: false,
         };
+
         /*
                 args.builder.coverage = {
                   describe: "writes coverage infos, only working for chromium yet",
@@ -44,19 +47,22 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         args.builder.headless = {
           describe: "runs test headless",
           type: "boolean",
-          default: false
+          default: false,
         };
+
         args.builder.browsers = {
-          describe: "list of browsers to test against, currently supported chromium, firefox, webkit",
-          type: "string"
+          describe:
+            "list of browsers to test against, currently supported chromium, firefox, webkit",
+          type: "string",
         };
+
         return args;
-      }
+      };
     },
 
     __enviroment: null,
     // @overridden
-    load: async function () {
+    async load() {
       let command = this.getCompilerApi().getCommand();
       if (command instanceof qx.tool.cli.commands.Test) {
         command.addListener("runTests", this.__testIt, this);
@@ -66,38 +72,48 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       }
     },
 
-    __testIt: function (data) {
+    __testIt(data) {
       let app = this.__getTestApp("qxl.testtapper.Application");
       if (!app) {
-        qx.tool.compiler.Console.error("Please install testtapper application in compile.json");
+        qx.tool.compiler.Console.error(
+          "Please install testtapper application in compile.json"
+        );
         return qx.Promise.resolve(false);
       }
       let result = data.getData();
       return this.__runTests(app, result);
     },
 
-
     __runTestInBrowser(browserType, url, app, result) {
       return new qx.Promise(async (resolve, reject) => {
         try {
-          const playwright = this.require('playwright');
-          const v8toIstanbul = this.require('v8-to-istanbul');
+          const playwright = this.require("playwright");
+          const v8toIstanbul = this.require("v8-to-istanbul");
           console.log("TAP version 13");
           console.log("# TESTTAPPER: Running tests in " + browserType);
           const launchArgs = {
-            args: [
-              '--no-sandbox',
-              '--disable-setuid-sandbox'
-            ],
-            headless: (app.argv.headless === null)?((app.environment["qxl.testtapper.headless"] === null)?true:app.environment["qxl.testtapper.headless"]):app.argv.headless
+            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+
+            headless:
+              app.argv.headless === null
+                ? app.environment["qxl.testtapper.headless"] === null
+                  ? true
+                  : app.environment["qxl.testtapper.headless"]
+                : app.argv.headless,
           };
+
           const browser = playwright[browserType];
           if (!browser) {
             reject(new Error(`unknown browser ${browserType}`));
           }
           const context = await browser.launch(launchArgs);
           const page = await context.newPage();
-          let cov = ((app.argv.coverage === null)?(app.environment["qxl.testtapper.coverage"] === null?false:app.environment["qxl.testtapper.coverage"]):app.argv.coverage) && (browserType === "chromium");
+          let cov =
+            (app.argv.coverage === null
+              ? app.environment["qxl.testtapper.coverage"] === null
+                ? false
+                : app.environment["qxl.testtapper.coverage"]
+              : app.argv.coverage) && browserType === "chromium";
           if (cov) {
             await page.coverage.startJSCoverage();
           }
@@ -111,9 +127,15 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             if (val.match(/^\d+\.\.\d+$/)) {
               let endTime = performance.now();
               let timeDiff = endTime - startTime;
-              qx.tool.compiler.Console.info(`DONE testing ${Ok} ok, ${notOk} not ok, ${skipped} skipped - [${timeDiff.toFixed(0)} ms]`);
+              qx.tool.compiler.Console.info(
+                `DONE testing ${Ok} ok, ${notOk} not ok, ${skipped} skipped - [${timeDiff.toFixed(
+                  0
+                )} ms]`
+              );
               if (cov) {
-                qx.tool.compiler.Console.info("writing coverage information ...");
+                qx.tool.compiler.Console.info(
+                  "writing coverage information ..."
+                );
                 const coverage = await page.coverage.stopJSCoverage();
                 const entries = {};
                 let target = app.maker.getTarget();
@@ -132,21 +154,28 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                   let url = new URL(entry.url);
                   filePath = path.join(process.cwd(), outputDir, url.pathname);
                   const converter = new v8toIstanbul(filePath, 0, {
-                    source: source
+                    source: source,
                   });
+
                   await converter.load();
                   converter.applyCoverage(entry.functions);
                   const instanbul = converter.toIstanbul();
                   entries[filePath] = instanbul[filePath];
                 }
-                await mkdir(path.join(process.cwd(), '.nyc_output'), { recursive: true });
-                await writeFile(path.join(process.cwd(), '.nyc_output', 'out.json'), JSON.stringify(entries));
+                await mkdir(path.join(process.cwd(), ".nyc_output"), {
+                  recursive: true,
+                });
+                await writeFile(
+                  path.join(process.cwd(), ".nyc_output", "out.json"),
+                  JSON.stringify(entries)
+                );
               }
               await context.close();
               result[app.name][browserType] = {
                 notOk: notOk,
-                ok: Ok
+                ok: Ok,
               };
+
               result.setExitCode(result.getExitCode() + notOk);
               resolve();
             } else if (val.match(/^not ok /)) {
@@ -176,7 +205,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       });
     },
 
-    __runTests: async function (app, result) {
+    async __runTests(app, result) {
       let outputDir = "";
       if (this.getCompilerApi().getCommand().showStartpage()) {
         let target = app.maker.getTarget();
@@ -199,7 +228,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       }
       qx.tool.compiler.Console.log("CALL " + url.href);
       result[app.name] = {};
-      let browsers = (app.argv.browsers || "").split(",").filter(s => s.length > 0);
+      let browsers = (app.argv.browsers || "")
+        .split(",")
+        .filter((s) => s.length > 0);
       if (browsers.length === 0) {
         browsers = app.environment["qxl.testtapper.browsers"];
       }
@@ -215,19 +246,25 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       }
     },
 
-    __getTestApp: function (classname) {
+    __getTestApp(classname) {
       let command = this.getCompilerApi().getCommand();
       let maker = null;
       let app = null;
-      command.getMakers().forEach(tmp => {
-        let apps = tmp.getApplications().filter(app => (app.getClassName() === classname) && app.isBrowserApp());
+      command.getMakers().forEach((tmp) => {
+        let apps = tmp
+          .getApplications()
+          .filter(
+            (app) => app.getClassName() === classname && app.isBrowserApp()
+          );
         if (apps.length) {
           if (maker) {
             qx.tool.compiler.Console.print("qx.tool.cli.test.tooManyMakers");
             return null;
           }
           if (apps.length != 1) {
-            qx.tool.compiler.Console.print("qx.tool.cli.test.tooManyApplications");
+            qx.tool.compiler.Console.print(
+              "qx.tool.cli.test.tooManyApplications"
+            );
             return null;
           }
           maker = tmp;
@@ -240,7 +277,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       }
       let env = app.getEnvironment();
       if (env["testtapper.testNameSpace"]) {
-        qx.tool.compiler.Console.error('environment["testtapper.testNameSpace"] is deprecated, use environment["qxl.testtapper.testNameSpace"] instead');
+        qx.tool.compiler.Console.error(
+          'environment["testtapper.testNameSpace"] is deprecated, use environment["qxl.testtapper.testNameSpace"] instead'
+        );
         env["qxl.testtapper.testNameSpace"] = env["testtapper.testNameSpace"];
       }
       var config = command._getConfig();
@@ -249,12 +288,12 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         environment: env,
         port: config.serve.listenPort,
         argv: command.argv,
-        maker: maker
-      }
-    }
-  }
+        maker: maker,
+      };
+    },
+  },
 });
 
 module.exports = {
-  LibraryApi: qxl.testtapper.compile.LibraryApi
+  LibraryApi: qxl.testtapper.compile.LibraryApi,
 };

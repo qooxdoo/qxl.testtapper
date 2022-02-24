@@ -1,7 +1,7 @@
 qx.Class.define("qxl.testtapperdemo.test.Test09AsyncFunction", {
   extend: qx.dev.unit.TestCase,
   members: {
-    "test01: async function": async function () {
+    async "test01: async function"() {
       let value = await new Promise((resolve, reject) => {
         setTimeout(() => {
           resolve("resolved");
@@ -9,7 +9,7 @@ qx.Class.define("qxl.testtapperdemo.test.Test09AsyncFunction", {
       });
       this.assertEquals("resolved", value, "Timeout Resolved");
     },
-    "test02: async function fail": async function () {
+    async "test02: async function fail"() {
       try {
         let value = await new Promise((resolve, reject) => {
           setTimeout(() => {
@@ -20,17 +20,21 @@ qx.Class.define("qxl.testtapperdemo.test.Test09AsyncFunction", {
         this.assertEquals("unresolved", e, "Timeout Rejected");
       }
     },
-    "test03: async function exception": async function () {
+    async "test03: async function exception"() {
       try {
         let value = await new Promise((resolve, reject) => {
           unknownFunctionCall();
         });
       } catch (exc) {
         let e = exc;
-        this.assertEquals("unknownFunctionCall is not defined", e.message, "unknownFunctionCall");
+        this.assertEquals(
+          "unknownFunctionCall is not defined",
+          e.message,
+          "unknownFunctionCall"
+        );
       }
     },
-    "test04: async exception": async function () {
+    async "test04: async exception"() {
       try {
         let value = await new Promise((resolve, reject) => {
           throw new Error("exc");
@@ -39,6 +43,6 @@ qx.Class.define("qxl.testtapperdemo.test.Test09AsyncFunction", {
         let e = exc;
         this.assertEquals("exc", e.message, "throw Error");
       }
-    }
-  }
+    },
+  },
 });
