@@ -19,7 +19,7 @@ jobs:
 
         node:
           - '14.x'
-          - 'latest'
+          - '16.x'
 
       fail-fast: false
 
