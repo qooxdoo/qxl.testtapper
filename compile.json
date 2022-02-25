@@ -20,6 +20,7 @@
     }
   ],
   "exclude": [
+    "qx.tool.*", 
     "qx.module.Blocker",
     "qx.module.Placement"
   ],
