@@ -42,7 +42,7 @@ jobs:
       uses: microsoft/playwright-github-action@v1
 
     - name: Install NPM Dependencies
-      run: npm install @qooxdoo/frameworkex --no-save --no-package-lock
+      run: npm install @qooxdoo/framework --no-save --no-package-lock
 
 
     - name: Run Tests
