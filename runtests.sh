@@ -1,5 +1,5 @@
 #!/bin/sh
-npx qx test --browsers=chromium
+npx qx test --browsers=chromium --headless
 if [ $? = 5 ]; then
     echo GOOD. Expected 5 tests to fail.
 #    kill $pid
