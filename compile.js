@@ -282,7 +282,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         );
         env["qxl.testtapper.testNameSpace"] = env["testtapper.testNameSpace"];
       }
-      var config = command._getConfig();
+      var config = command.getCompilerApi().getConfiguration();
       return {
         name: app.getName(),
         environment: env,
