@@ -15,6 +15,7 @@
  * @asset(qx/icon/Oxygen/16/actions/dialog-cancel.png)
  * @asset(qx/icon/Tango/16/places/folder.png)
  * @asset(qx/icon/Tango/16/places/folder-open.png)
+ * @asset(qx/iconfont/MaterialIcons/*)
  */
 qx.Class.define("qxl.testtapper.Application", {
   extend: qx.application.Standalone,
