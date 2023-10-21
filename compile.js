@@ -88,6 +88,12 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       return new qx.Promise(async (resolve, reject) => {
         try {
           const playwright = this.require("playwright");
+          const { execSync } = require("child_process");
+          let s = `npx playwright install`;
+          qx.tool.compiler.Console.info(s);
+          execSync(s, {
+            stdio: "inherit"
+          });
           const v8toIstanbul = this.require("v8-to-istanbul");
           console.log("TAP version 13");
           console.log("# TESTTAPPER: Running tests in " + browserType);
