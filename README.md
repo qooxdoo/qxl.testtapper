@@ -16,8 +16,9 @@ $ npx qx package update
 $ npx qx package install qooxdoo/qxl.testtapper
 ```
 
-Now edit the `"myapp.test.*"` entry in your `compile.json` file to point to the
+Now replace the `"qx.test.*"` entry in `application.includes` section of your `compile.json` file to point to the
 test classes in your own application.
+Also set value for the environment variable `qxl.testtapper.testNameSpace` in your `compile.json`.
 
 ```
 $ npx qx serve
