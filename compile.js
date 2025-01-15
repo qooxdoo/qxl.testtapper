@@ -61,6 +61,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
     },
 
     __enviroment: null,
+    __playwright: null,
+    __v8toIstanbul: null,
+
     // @overridden
     async load() {
       let command = this.getCompilerApi().getCommand();
@@ -87,14 +90,23 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
     __runTestInBrowser(browserType, url, app, result) {
       return new qx.Promise(async (resolve, reject) => {
         try {
-          const playwright = this.require("playwright");
-          const { execSync } = require("child_process");
-          let s = `npx playwright install`;
-          qx.tool.compiler.Console.info(s);
-          execSync(s, {
-            stdio: "inherit"
-          });
-          const v8toIstanbul = this.require("v8-to-istanbul");
+          if (!this.__playwright) {
+            this.__playwright = this.require("playwright");
+            const { execSync } = require("child_process");
+            let s = `npx playwright install`;
+            qx.tool.compiler.Console.info(s);
+            execSync(s, {
+              stdio: "inherit"
+            });
+            s = `npx playwright install-deps`;
+            qx.tool.compiler.Console.info(s);
+            execSync(s, {
+              stdio: "inherit"
+            });
+          }
+          if (!this.__v8toIstanbul) {	         
+             this.__v8toIstanbul = this.require("v8-to-istanbul");
+          }   
           console.log("TAP version 13");
           console.log("# TESTTAPPER: Running tests in " + browserType);
           const launchArgs = {
@@ -108,7 +120,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                 : app.argv.headless,
           };
 
-          const browser = playwright[browserType];
+          const browser = this.__playwright[browserType];
           if (!browser) {
             reject(new Error(`unknown browser ${browserType}`));
           }
@@ -123,6 +135,8 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           if (cov) {
             await page.coverage.startJSCoverage();
           }
+          let failFast = app.argv.failFast;
+
           let Ok = 0;
           let notOk = 0;
           let skipped = 0;
@@ -159,7 +173,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                   }
                   let url = new URL(entry.url);
                   filePath = path.join(process.cwd(), outputDir, url.pathname);
-                  const converter = new v8toIstanbul(filePath, 0, {
+                  const converter = new this.__v8toIstanbul(filePath, 0, {
                     source: source,
                   });
 
@@ -181,7 +195,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                 notOk: notOk,
                 ok: Ok,
               };
-
+              if (failFast && notOk > 0) {
+                result.setFailFast(true);
+              }
               result.setExitCode(result.getExitCode() + notOk);
               resolve();
             } else if (val.match(/^not ok /)) {
@@ -243,6 +259,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       if (!browsers || browsers.length === 0) {
         browsers = ["chromium"];
       }
+      this.__failFast = (app.argv.failFast || false)
       for (const browserType of browsers) {
         try {
           await this.__runTestInBrowser(browserType, url, app, result);
