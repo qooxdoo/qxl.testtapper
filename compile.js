@@ -111,7 +111,6 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           console.log("# TESTTAPPER: Running tests in " + browserType);
           const launchArgs = {
             args: ["--no-sandbox", "--disable-setuid-sandbox"],
-
             headless:
               app.argv.headless === null
                 ? app.environment["qxl.testtapper.headless"] === null
@@ -119,7 +118,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                   : app.environment["qxl.testtapper.headless"]
                 : app.argv.headless,
           };
-
+          if (app.argv.verbose) {
+            console.log(launchArgs);
+          }
           const browser = this.__playwright[browserType];
           if (!browser) {
             reject(new Error(`unknown browser ${browserType}`));
