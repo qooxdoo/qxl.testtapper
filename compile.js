@@ -135,7 +135,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           if (cov) {
             await page.coverage.startJSCoverage();
           }
-          let failFast = app.argv.failFast;
+          let failFast = app.argv.failFast || false;
 
           let Ok = 0;
           let notOk = 0;
@@ -259,7 +259,6 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       if (!browsers || browsers.length === 0) {
         browsers = ["chromium"];
       }
-      this.__failFast = (app.argv.failFast || false)
       for (const browserType of browsers) {
         try {
           await this.__runTestInBrowser(browserType, url, app, result);
