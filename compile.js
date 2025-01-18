@@ -108,7 +108,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
              this.__v8toIstanbul = this.require("v8-to-istanbul");
           }   
           console.log("TAP version 13");
-          console.log("# TESTTAPPER: Running tests in " + browserType);
+          console.log(`# TESTTAPPER: Running tests in ${browserType}`);
           const launchArgs = {
             args: ["--no-sandbox", "--disable-setuid-sandbox"],
             headless:
@@ -136,8 +136,6 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           if (cov) {
             await page.coverage.startJSCoverage();
           }
-          let failFast = app.argv.failFast || false;
-
           let Ok = 0;
           let notOk = 0;
           let skipped = 0;
@@ -149,7 +147,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
               let endTime = performance.now();
               let timeDiff = endTime - startTime;
               qx.tool.compiler.Console.info(
-                `DONE testing ${Ok} ok, ${notOk} not ok, ${skipped} skipped - [${timeDiff.toFixed(
+                `DONE testing ${browserType}: ${Ok} ok, ${notOk} not ok, ${skipped} skipped - [${timeDiff.toFixed(
                   0
                 )} ms]`
               );
@@ -196,11 +194,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                 notOk: notOk,
                 ok: Ok,
               };
-              if (failFast && notOk > 0) {
-                result.setFailFast(true);
-              }
-              result.setExitCode(result.getExitCode() + notOk);
-              resolve();
+              resolve(notOk);
             } else if (val.match(/^not ok /)) {
               notOk++;
               qx.tool.compiler.Console.log(val);
@@ -260,13 +254,19 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       if (!browsers || browsers.length === 0) {
         browsers = ["chromium"];
       }
+      let failFast = app.argv.failFast || false;
+      let notOk = 0;
       for (const browserType of browsers) {
         try {
-          await this.__runTestInBrowser(browserType, url, app, result);
+          notOk += await this.__runTestInBrowser(browserType, url, app, result);
+          if (failFast && (notOk > 0)) {
+            break;
+          }
         } catch (e) {
           qx.tool.compiler.Console.error(e);
         }
       }
+      result.setExitCode(result.getExitCode() + notOk);
     },
 
     __getTestApp(classname) {
