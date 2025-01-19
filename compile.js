@@ -109,8 +109,12 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           }   
           console.log("TAP version 13");
           console.log(`# TESTTAPPER: Running tests in ${browserType}`);
+          let args = ["--disable-setuid-sandbox"];
+          if (browserType !== "webkit") {
+            args.push("--no-sandbox");
+          }
           const launchArgs = {
-            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+            args: args,
             headless:
               app.argv.headless === null
                 ? app.environment["qxl.testtapper.headless"] === null
@@ -264,6 +268,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           }
         } catch (e) {
           qx.tool.compiler.Console.error(e);
+          result.setExitCode(255);
         }
       }
       result.setExitCode(result.getExitCode() + notOk);
