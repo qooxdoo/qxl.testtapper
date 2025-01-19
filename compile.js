@@ -109,9 +109,10 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           }   
           console.log("TAP version 13");
           console.log(`# TESTTAPPER: Running tests in ${browserType}`);
-          let args = ["--disable-setuid-sandbox"];
+          let args = [];
           if (browserType !== "webkit") {
             args.push("--no-sandbox");
+            args.push("--disable-setuid-sandbox");  
           }
           const launchArgs = {
             args: args,
