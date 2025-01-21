@@ -225,7 +225,7 @@ qx.Class.define("qxl.testtapper.Application", {
               that._cnt++;
               if (item.exception) {
                 if (item.exception.message) {
-                  let message = item.exception.message.toString();
+                  let message = item.exception.toString();
                   this.info(
                     `not ok ${that._cnt} - ${test} - [${numberFormat.format(
                       timeDiff
