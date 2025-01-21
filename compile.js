@@ -229,6 +229,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
 
     async __runTests(app, result) {
       let outputDir = "";
+      let exitCode = 0;
       if (this.getCompilerApi().getCommand().showStartpage()) {
         let target = app.maker.getTarget();
         outputDir = target.getOutputDir();
@@ -240,12 +241,14 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         if (s.length > 0) {
           s += "&";
         }
+        exitCode = 197;
         s += "method=" + app.argv.method;
       }
       if (app.argv.class) {
         if (s.length > 0) {
           s += "&";
         }
+        exitCode = 197;
         s += "class=" + app.argv.class;
       }
       if (s.length > 0) {
@@ -268,12 +271,15 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           tests.push(this.__runTestInBrowser(browserType, url, app, result));
         } catch (e) {
           qx.tool.compiler.Console.error(e);
-          result.setExitCode(255);
+          exitCode = 254;
         }
       }
       let res = await Promise.all(tests);
       let sum = res.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-      result.setExitCode(result.getExitCode() + sum);
+      if (sum > 0) {
+        exitCode = 1;
+      }
+      result.setExitCode(exitCode);
     },
 
     __getTestApp(classname) {
