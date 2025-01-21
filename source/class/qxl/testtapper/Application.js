@@ -226,6 +226,9 @@ qx.Class.define("qxl.testtapper.Application", {
               if (item.exception) {
                 if (item.exception.message) {
                   let message = item.exception.toString();
+                  if (cfg.stackTrace) {
+                     message = `${item.exception.getComment()}\n${item.exception.stack}`;
+                  }
                   this.info(
                     `not ok ${that._cnt} - ${test} - [${numberFormat.format(
                       timeDiff

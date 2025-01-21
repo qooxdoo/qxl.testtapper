@@ -235,8 +235,11 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       }
       let href = `http://localhost:${app.port}/${outputDir}${app.name}/`;
       let url = new URL(href);
-      let s = "";
+      let s = "stackTrace=true";
       if (app.argv.method) {
+        if (s.length > 0) {
+          s += "&";
+        }
         s += "method=" + app.argv.method;
       }
       if (app.argv.class) {
@@ -269,7 +272,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         }
       }
       let res = await Promise.all(tests);
-      let sum = res.reduceRight((accumulator, currentValue) => accumulator + currentValue, 0);
+      let sum = res.reduceRight((accumulator, currentValue) => {return accumulator + currentValue;}, 0);
       result.setExitCode(result.getExitCode() + sum);
     },
 
