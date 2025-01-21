@@ -1,6 +1,8 @@
 #!/bin/sh
-npx qx test --browsers=chromium --headless
-if [ $? = 5 ]; then
+npx qx test --browsers=chromium --headless 
+exit_code=$?
+echo $exit_code
+if [ $exit_code = 5 ]; then
     echo GOOD. Expected 5 tests to fail.
 #    kill $pid
     exit 0

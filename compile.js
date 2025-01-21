@@ -241,14 +241,14 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         if (s.length > 0) {
           s += "&";
         }
-        exitCode = 197;
+        exitCode = 254;
         s += "method=" + app.argv.method;
       }
       if (app.argv.class) {
         if (s.length > 0) {
           s += "&";
         }
-        exitCode = 197;
+        exitCode = 254;
         s += "class=" + app.argv.class;
       }
       if (s.length > 0) {
@@ -271,13 +271,13 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           tests.push(this.__runTestInBrowser(browserType, url, app, result));
         } catch (e) {
           qx.tool.compiler.Console.error(e);
-          exitCode = 254;
+          exitCode = 253;
         }
       }
       let res = await Promise.all(tests);
       let sum = res.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
       if (sum > 0) {
-        exitCode = 1;
+        exitCode = Math.min(sum, 252);
       }
       result.setExitCode(exitCode);
     },
