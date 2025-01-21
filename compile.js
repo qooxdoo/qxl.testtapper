@@ -272,7 +272,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         }
       }
       let res = await Promise.all(tests);
-      let sum = res.reduceRight((accumulator, currentValue) => {return accumulator + currentValue;}, 0);
+      let sum = res.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
       result.setExitCode(result.getExitCode() + sum);
     },
 
