@@ -39,13 +39,14 @@ jobs:
 
     - name: Install NPM Dependencies
       run: |
-           npm install @qooxdoo/framework --no-save --no-package-lock
+           npm install @qooxdoo/framework --no-package-lock
+           npm install playwright --no-package-lock
            npx playwright install --with-deps
     - name: Run Tests
       run: ./runtests.sh
 
     - name: Deploy Pages
-      if: github.event_name == 'push' && github.repository == 'qooxdoo/qxl.testtapper' && github.ref == 'refs/heads/master' && matrix.node == '11.x'
+      if: github.event_name == 'push' && github.repository == 'qooxdoo/qxl.testtapper' && github.ref == 'refs/heads/master'
       run: |
         set -x
         npx qx compile --machine-readable --target=build
