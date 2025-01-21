@@ -158,7 +158,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
               );
               if (cov) {
                 qx.tool.compiler.Console.info(
-                  "writing coverage information ..."
+                  `${browserType}: writing coverage information ...`
                 );
                 const coverage = await page.coverage.stopJSCoverage();
                 const entries = {};
@@ -202,21 +202,21 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
               resolve(notOk);
             } else if (val.match(/^not ok /)) {
               notOk++;
-              qx.tool.compiler.Console.log(val);
+              qx.tool.compiler.Console.log(`${browserType}: ${val}`);
             } else if (val.includes("# SKIP")) {
               skipped++;
               if (!app.argv.terse) {
-                qx.tool.compiler.Console.log(val);
+                qx.tool.compiler.Console.log(`${browserType}: ${val}`);
               }
             } else if (val.match(/^ok\s/)) {
               Ok++;
               if (!app.argv.terse) {
-                qx.tool.compiler.Console.log(val);
+                qx.tool.compiler.Console.log(`${browserType}: ${val}`);
               }
             } else if (val.match(/^#/) && app.argv.diag) {
-              qx.tool.compiler.Console.log(val);
+              qx.tool.compiler.Console.log(`${browserType}: ${val}`);
             } else if (app.argv.verbose) {
-              qx.tool.compiler.Console.log(val);
+              qx.tool.compiler.Console.log(`${browserType}: ${val}`);
             }
           });
           startTime = performance.now();
@@ -259,20 +259,18 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       if (!browsers || browsers.length === 0) {
         browsers = ["chromium"];
       }
-      let failFast = app.argv.failFast || false;
-      let notOk = 0;
+      let tests = [];
       for (const browserType of browsers) {
         try {
-          notOk += await this.__runTestInBrowser(browserType, url, app, result);
-          if (failFast && (notOk > 0)) {
-            break;
-          }
+          tests.push(this.__runTestInBrowser(browserType, url, app, result));
         } catch (e) {
           qx.tool.compiler.Console.error(e);
           result.setExitCode(255);
         }
       }
-      result.setExitCode(result.getExitCode() + notOk);
+      let res = await Promise.all(tests);
+      let sum = res.reduceRight((accumulator, currentValue) => accumulator + currentValue, 0);
+      result.setExitCode(result.getExitCode() + sum);
     },
 
     __getTestApp(classname) {
