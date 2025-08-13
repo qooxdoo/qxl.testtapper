@@ -20,7 +20,7 @@
         "email": "Henner.Kollmann@gmx.de"
       }
     ],
-    "version": "3.0.0",
+    "version": "4.0.0",
     "sourceViewUri": "https://github.com/qooxdoo/qxl.testtapper/blob/%{qxGitBranch}/source/class/%{classFilePath}#L%{lineNumber}"
   },
   "provides": {
@@ -45,7 +45,7 @@
     }
   },
   "requires": {
-    "@qooxdoo/framework": "^7.0.0",
+    "@qooxdoo/framework": "^8.0.0-beta",
     "qooxdoo/qxl.logpane": "^2.0.0"
   }
 }

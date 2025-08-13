@@ -7,56 +7,69 @@ const { URL } = require("url");
 const { performance } = require("perf_hooks");
 
 qx.Class.define("qxl.testtapper.compile.LibraryApi", {
-  extend: qx.tool.cli.api.LibraryApi,
+  extend: qx.tool.compiler.cli.api.LibraryApi,
 
   members: {
     // @overridden
     async initialize() {
-      let yargs = qx.tool.cli.commands.Test.getYargsCommand;
-      qx.tool.cli.commands.Test.getYargsCommand = () => {
-        let args = yargs();
-        args.builder.class = {
-          describe: "only run tests of this class",
-          type: "string",
-        };
+      let originalCreateCliCommand = qx.tool.compiler.cli.commands.Test.createCliCommand;
+      qx.tool.compiler.cli.commands.Test.createCliCommand = async function(clazz) {
+        let cmd = await originalCreateCliCommand.call(this, clazz);
+        
+        cmd.addFlag(
+          new qx.tool.cli.Flag("class").set({
+            description: "only run tests of this class",
+            type: "string"
+          })
+        );
 
-        args.builder.method = {
-          describe: "only run tests of this method",
-          type: "string",
-        };
+        cmd.addFlag(
+          new qx.tool.cli.Flag("method").set({
+            description: "only run tests of this method",
+            type: "string"
+          })
+        );
 
-        args.builder.diag = {
-          describe: "show diagnostic output",
-          type: "boolean",
-          default: false,
-        };
+        cmd.addFlag(
+          new qx.tool.cli.Flag("diag").set({
+            description: "show diagnostic output",
+            type: "boolean",
+            value: false
+          })
+        );
 
-        args.builder.terse = {
-          describe: "show only summary and errors",
-          type: "boolean",
-          default: false,
-        };
+        cmd.addFlag(
+          new qx.tool.cli.Flag("terse").set({
+            description: "show only summary and errors",
+            type: "boolean",
+            value: false
+          })
+        );
 
-        /*
-                args.builder.coverage = {
-                  describe: "writes coverage infos, only working for chromium yet",
-                  type: "boolean",
-                  default: false
-                };
-        */
-        args.builder.headless = {
-          describe: "runs test headless",
-          type: "boolean",
-          default: false,
-        };
+        cmd.addFlag(
+          new qx.tool.cli.Flag("coverage").set({
+            description: "writes coverage infos, only working for chromium yet",
+            type: "boolean",
+            value: false
+          })
+        );
 
-        args.builder.browsers = {
-          describe:
-            "list of browsers to test against, currently supported chromium, firefox, webkit",
-          type: "string",
-        };
+        cmd.addFlag(
+          new qx.tool.cli.Flag("headless").set({
+            description: "runs test headless",
+            type: "boolean",
+            value: false
+          })
+        );
 
-        return args;
+        cmd.addFlag(
+          new qx.tool.cli.Flag("browsers").set({
+            description: "list of browsers to test against, currently supported chromium, firefox, webkit",
+            type: "string"
+          })
+        );
+
+        return cmd;
       };
     },
 
@@ -67,7 +80,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
     // @overridden
     async load() {
       let command = this.getCompilerApi().getCommand();
-      if (command instanceof qx.tool.cli.commands.Test) {
+      if (command instanceof qx.tool.compiler.cli.commands.Test) {
         command.addListener("runTests", this.__testIt, this);
         if (command.setNeedsServer) {
           command.setNeedsServer(true);
