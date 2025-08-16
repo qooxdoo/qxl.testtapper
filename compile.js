@@ -10,74 +10,67 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
   extend: qx.tool.compiler.cli.api.LibraryApi,
 
   members: {
-    // @overridden
-    async initialize() {
-      let originalCreateCliCommand = qx.tool.compiler.cli.commands.Test.createCliCommand;
-      qx.tool.compiler.cli.commands.Test.createCliCommand = async function(clazz) {
-        let cmd = await originalCreateCliCommand.call(this, clazz);
-        
-        cmd.addFlag(
-          new qx.tool.cli.Flag("class").set({
-            description: "only run tests of this class",
-            type: "string"
-          })
-        );
+    // @Override
+    async initialize(rootCmd) {
+      rootCmd.addFlag(
+        new qx.tool.cli.Flag("class").set({
+          description: "only run tests of this class",
+          type: "string"
+        })
+      );
 
-        cmd.addFlag(
-          new qx.tool.cli.Flag("method").set({
-            description: "only run tests of this method",
-            type: "string"
-          })
-        );
+      rootCmd.addFlag(
+        new qx.tool.cli.Flag("method").set({
+          description: "only run tests of this method",
+          type: "string"
+        })
+      );
 
-        cmd.addFlag(
-          new qx.tool.cli.Flag("diag").set({
-            description: "show diagnostic output",
-            type: "boolean",
-            value: false
-          })
-        );
+      rootCmd.addFlag(
+        new qx.tool.cli.Flag("diag").set({
+          description: "show diagnostic output",
+          type: "boolean",
+          value: false
+        })
+      );
 
-        cmd.addFlag(
-          new qx.tool.cli.Flag("terse").set({
-            description: "show only summary and errors",
-            type: "boolean",
-            value: false
-          })
-        );
+      rootCmd.addFlag(
+        new qx.tool.cli.Flag("terse").set({
+          description: "show only summary and errors",
+          type: "boolean",
+          value: false
+        })
+      );
 
-        cmd.addFlag(
-          new qx.tool.cli.Flag("coverage").set({
-            description: "writes coverage infos, only working for chromium yet",
-            type: "boolean",
-            value: false
-          })
-        );
+      rootCmd.addFlag(
+        new qx.tool.cli.Flag("coverage").set({
+          description: "writes coverage infos, only working for chromium yet",
+          type: "boolean",
+          value: false
+        })
+      );
 
-        cmd.addFlag(
-          new qx.tool.cli.Flag("headless").set({
-            description: "runs test headless",
-            type: "boolean",
-            value: false
-          })
-        );
+      rootCmd.addFlag(
+        new qx.tool.cli.Flag("headless").set({
+          description: "runs test headless",
+          type: "boolean",
+          value: false
+        })
+      );
 
-        cmd.addFlag(
-          new qx.tool.cli.Flag("browsers").set({
-            description: "list of browsers to test against, currently supported chromium, firefox, webkit",
-            type: "string"
-          })
-        );
-
-        return cmd;
-      };
+      rootCmd.addFlag(
+        new qx.tool.cli.Flag("browsers").set({
+          description: "list of browsers to test against, currently supported chromium, firefox, webkit",
+          type: "string"
+        })
+      );
     },
 
     __enviroment: null,
     __playwright: null,
     __v8toIstanbul: null,
 
-    // @overridden
+    // @Override
     async load() {
       let command = this.getCompilerApi().getCommand();
       if (command instanceof qx.tool.compiler.cli.commands.Test) {
@@ -243,11 +236,8 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
     async __runTests(app, result) {
       let outputDir = "";
       let exitCode = 0;
-      if (this.getCompilerApi().getCommand().showStartpage()) {
-        let target = app.maker.getTarget();
-        outputDir = target.getOutputDir();
-      }
-      let href = `http://localhost:${app.port}/${outputDir}${app.name}/`;
+
+      let href = `http://localhost:${app.listenPort}/${outputDir}${app.name}/`;
       let url = new URL(href);
       let s = "stackTrace=true";
       if (app.argv.method) {
@@ -331,12 +321,13 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         );
         env["qxl.testtapper.testNameSpace"] = env["testtapper.testNameSpace"];
       }
-      var config = command.getCompilerApi().getConfiguration();
+      let config = command.getCompilerApi().getConfiguration();
+      let listenPort = config?.serve?.listenPort ?? command.argv.listenPort;
       return {
         name: app.getName(),
         environment: env,
-        port: config.serve.listenPort,
         argv: command.argv,
+        listenPort: listenPort,
         maker: maker,
       };
     },
