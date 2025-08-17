@@ -11,22 +11,25 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
 
   members: {
     // @Override
-    async initialize(rootCmd) {
-      rootCmd.addFlag(
+    async initialize(cmd) {
+      if (cmd.getName() !== "test") {
+        return;
+      }
+      cmd.addFlag(
         new qx.tool.cli.Flag("class").set({
           description: "only run tests of this class",
           type: "string"
         })
       );
 
-      rootCmd.addFlag(
+      cmd.addFlag(
         new qx.tool.cli.Flag("method").set({
           description: "only run tests of this method",
           type: "string"
         })
       );
 
-      rootCmd.addFlag(
+      cmd.addFlag(
         new qx.tool.cli.Flag("diag").set({
           description: "show diagnostic output",
           type: "boolean",
@@ -34,7 +37,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         })
       );
 
-      rootCmd.addFlag(
+      cmd.addFlag(
         new qx.tool.cli.Flag("terse").set({
           description: "show only summary and errors",
           type: "boolean",
@@ -42,7 +45,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         })
       );
 
-      rootCmd.addFlag(
+      cmd.addFlag(
         new qx.tool.cli.Flag("coverage").set({
           description: "writes coverage infos, only working for chromium yet",
           type: "boolean",
@@ -50,7 +53,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         })
       );
 
-      rootCmd.addFlag(
+      cmd.addFlag(
         new qx.tool.cli.Flag("headless").set({
           description: "runs test headless",
           type: "boolean",
@@ -58,7 +61,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         })
       );
 
-      rootCmd.addFlag(
+      cmd.addFlag(
         new qx.tool.cli.Flag("browsers").set({
           description: "list of browsers to test against, currently supported chromium, firefox, webkit",
           type: "string"
