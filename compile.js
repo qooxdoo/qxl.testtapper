@@ -11,7 +11,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
 
   members: {
     // @Override
-    async initialize(cmd) {
+    initialize(cmd) {
       if (cmd.getName() !== "test") {
         return;
       }
