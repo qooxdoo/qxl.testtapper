@@ -72,7 +72,8 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       cmd.addFlag(
         new qx.tool.cli.Flag("browsers").set({
           description: "list of browsers to test against, currently supported chromium, firefox, webkit",
-          type: "string"
+          type: "string",
+          value: "chromium"
         })
       );
     },
