@@ -46,6 +46,14 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       );
 
       cmd.addFlag(
+        new qx.tool.cli.Flag("stackTrace").set({
+          description: "prints the stacktrace in case of error",
+          type: "boolean",
+          value: false
+        })
+      );
+
+      cmd.addFlag(
         new qx.tool.cli.Flag("coverage").set({
           description: "writes coverage infos, only working for chromium yet",
           type: "boolean",
@@ -102,12 +110,13 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           if (!this.__playwright) {
             this.__playwright = this.require("playwright");
             const { execSync } = require("child_process");
-            let s = `npx playwright install`;
+            let s;
+            s = `npx playwright install-deps`;
             qx.tool.compiler.Console.info(s);
             execSync(s, {
               stdio: "inherit"
             });
-            s = `npx playwright install-deps`;
+            s = `npx playwright install`;
             qx.tool.compiler.Console.info(s);
             execSync(s, {
               stdio: "inherit"
@@ -242,7 +251,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
 
       let href = `http://localhost:${app.listenPort}/${outputDir}${app.name}/`;
       let url = new URL(href);
-      let s = "stackTrace=true";
+      let s = `stackTrace=${app.argv.stackTrace}`;
       if (app.argv.method) {
         if (s.length > 0) {
           s += "&";
