@@ -252,7 +252,10 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
 
       let href = `http://localhost:${app.listenPort}/${outputDir}${app.name}/`;
       let url = new URL(href);
-      let s = `stackTrace=${app.argv.stackTrace}`;
+      let s = "";
+      if (app.argv.stackTrace) {
+        s += "stackTrace";
+      }
       if (app.argv.method) {
         if (s.length > 0) {
           s += "&";

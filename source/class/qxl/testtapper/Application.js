@@ -226,7 +226,7 @@ qx.Class.define("qxl.testtapper.Application", {
               if (item.exception) {
                 if (item.exception.message) {
                   let message = item.exception.toString();
-                  if (cfg.stackTrace) {
+                  if (cfg.hasOwnProperty("stackTrace")) {
                      message = `${item.exception.getComment?item.exception.getComment():message}\n${item.exception.stack}`;
                   }
                   this.info(
