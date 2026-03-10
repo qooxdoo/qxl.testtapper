@@ -15,67 +15,83 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       if (cmd.getName() !== "test") {
         return;
       }
-      cmd.addFlag(
-        new qx.tool.cli.Flag("class").set({
-          description: "only run tests of this class",
-          type: "string"
-        })
-      );
+      if (!cmd.getFlag("class")) {
+        cmd.addFlag(
+          new qx.tool.cli.Flag("class").set({
+            description: "only run tests of this class",
+            type: "string"
+          })
+        );
+      }
 
-      cmd.addFlag(
-        new qx.tool.cli.Flag("method").set({
-          description: "only run tests of this method",
-          type: "string"
-        })
-      );
+      if (!cmd.getFlag("method")) {
+        cmd.addFlag(
+          new qx.tool.cli.Flag("method").set({
+            description: "only run tests of this method",
+            type: "string"
+          })
+        );
+      }
 
-      cmd.addFlag(
-        new qx.tool.cli.Flag("diag").set({
-          description: "show diagnostic output",
-          type: "boolean",
-          value: false
-        })
-      );
+      if (!cmd.getFlag("diag")) {
+        cmd.addFlag(
+          new qx.tool.cli.Flag("diag").set({
+            description: "show diagnostic output",
+            type: "boolean",
+            value: false
+          })
+        );
+      }
 
-      cmd.addFlag(
-        new qx.tool.cli.Flag("terse").set({
-          description: "show only summary and errors",
-          type: "boolean",
-          value: false
-        })
-      );
+      if (!cmd.getFlag("terse")) {
+        cmd.addFlag(
+          new qx.tool.cli.Flag("terse").set({
+            description: "show only summary and errors",
+            type: "boolean",
+            value: false
+          })
+        );
+      }
 
-      cmd.addFlag(
-        new qx.tool.cli.Flag("stackTrace").set({
-          description: "prints the stacktrace in case of error",
-          type: "boolean",
-          value: false
-        })
-      );
+      if (!cmd.getFlag("stackTrace")) {
+        cmd.addFlag(
+          new qx.tool.cli.Flag("stackTrace").set({
+            description: "prints the stacktrace in case of error",
+            type: "boolean",
+            value: false
+          })
+        );
+      }
 
-      cmd.addFlag(
-        new qx.tool.cli.Flag("coverage").set({
-          description: "writes coverage infos, only working for chromium yet",
-          type: "boolean",
-          value: false
-        })
-      );
+      if (!cmd.getFlag("coverage")) {
+        cmd.addFlag(
+          new qx.tool.cli.Flag("coverage").set({
+            description: "writes coverage infos, only working for chromium yet",
+            type: "boolean",
+            value: false
+          })
+        );
+      }
 
-      cmd.addFlag(
-        new qx.tool.cli.Flag("headless").set({
-          description: "runs test headless",
-          type: "boolean",
-          value: false
-        })
-      );
+      if (!cmd.getFlag("headless")) {
+        cmd.addFlag(
+          new qx.tool.cli.Flag("headless").set({
+            description: "runs test headless",
+            type: "boolean",
+            value: false
+          })
+        );
+      }
 
-      cmd.addFlag(
-        new qx.tool.cli.Flag("browsers").set({
-          description: "list of browsers to test against, currently supported chromium, firefox, webkit",
-          type: "string",
-          value: "chromium"
-        })
-      );
+      if (!cmd.getFlag("browsers")) {
+        cmd.addFlag(
+          new qx.tool.cli.Flag("browsers").set({
+            description: "list of browsers to test against, currently supported chromium, firefox, webkit",
+            type: "string",
+            value: "chromium"
+          })
+        );
+      }
     },
 
     __enviroment: null,
