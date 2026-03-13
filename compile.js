@@ -321,12 +321,21 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       let command = this.getCompilerApi().getCommand();
       let maker = null;
       let app = null;
+      let argvAppGroups = command.argv["app-group"]
+        ? command.argv["app-group"].split(",").map(s => s.trim())
+        : null;
       command.getMakers().forEach((tmp) => {
         let apps = tmp
           .getApplications()
           .filter(
             (app) => app.getClassName() === classname && app.isBrowserApp()
           );
+        if (argvAppGroups) {
+          apps = apps.filter(app => {
+            let groups = app.getGroup() || [];
+            return argvAppGroups.some(g => groups.includes(g));
+          });
+        }
         if (apps.length) {
           if (maker) {
             qx.tool.compiler.Console.print("qx.tool.cli.test.tooManyMakers");
@@ -343,6 +352,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         }
       });
       if (!app) {
+        if (argvAppGroups) {
+          return null;
+        }
         qx.tool.compiler.Console.print("qx.tool.cli.test.noAppName");
         return null;
       }
