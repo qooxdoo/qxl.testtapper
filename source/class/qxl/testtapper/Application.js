@@ -207,7 +207,7 @@ qx.Class.define("qxl.testtapper.Application", {
             resolve();
           }
         };
-        let startTime;
+        const startTimes = new Map();
         let numberFormat = new qx.util.format.NumberFormat("en");
         numberFormat.set({
           maximumFractionDigits: 2,
@@ -218,9 +218,10 @@ qx.Class.define("qxl.testtapper.Application", {
         let showExceptions = (arr) => {
           arr.forEach((item) => {
             if (item.test.getFullName) {
-              let endTime = performance.now();
-              let timeDiff = endTime - startTime;
               let test = item.test.getFullName();
+              let startTime = startTimes.get(test) ?? performance.now();
+              let timeDiff = performance.now() - startTime;
+              startTimes.delete(test);
               that._failed[test] = true;
               that._cnt++;
               if (item.exception) {
@@ -253,8 +254,11 @@ qx.Class.define("qxl.testtapper.Application", {
           setTimeout(next, 0);
         };
         testResult.addListener("startTest", (evt) => {
-          this.info("# start " + evt.getData().getFullName());
-          startTime = performance.now();
+          const name = evt.getData().getFullName();
+          this.info("# start " + name);
+          if (!startTimes.has(name)) {
+            startTimes.set(name, performance.now());
+          }
         });
         testResult.addListener("wait", (evt) => {
           this.info("# wait " + evt.getData().getFullName());
@@ -263,9 +267,10 @@ qx.Class.define("qxl.testtapper.Application", {
           this.info("# endMeasurement " + evt.getData()[0].test.getFullName());
         });
         testResult.addListener("endTest", (evt) => {
-          let endTime = performance.now();
-          let timeDiff = endTime - startTime;
           let test = evt.getData().getFullName();
+          let startTime = startTimes.get(test) ?? performance.now();
+          let timeDiff = performance.now() - startTime;
+          startTimes.delete(test);
           if (!that._failed[test]) {
             that._cnt++;
             this.info(
