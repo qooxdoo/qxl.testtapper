@@ -310,11 +310,15 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         }
       }
       let res = await Promise.all(tests);
-      let sum = res.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-      if (sum > 0) {
-        exitCode = Math.min(sum, 252);
+      if (exitCode === 0) {
+        let sum = res.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        if (sum > 0) {
+          exitCode = Math.min(sum, 252);
+        }
       }
-      result.setExitCode(exitCode);
+      if (exitCode > 0) {
+        result.setExitCode(exitCode);
+      }
     },
 
     __getTestApp(classname) {
@@ -324,6 +328,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       let argvAppGroups = command.argv["app-group"]
         ? command.argv["app-group"].split(",").map(s => s.trim())
         : null;
+      if (!command.getMakers()) {
+         return null;
+      }
       command.getMakers().forEach((tmp) => {
         let apps = tmp
           .getApplications()
