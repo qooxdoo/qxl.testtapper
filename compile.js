@@ -218,8 +218,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
 
                   await converter.load();
                   converter.applyCoverage(entry.functions);
-                  const instanbul = converter.toIstanbul();
-                  entries[filePath] = instanbul[filePath];
+                  Object.assign(entries, converter.toIstanbul());
                 }
                 await mkdir(path.join(process.cwd(), ".nyc_output"), {
                   recursive: true,
