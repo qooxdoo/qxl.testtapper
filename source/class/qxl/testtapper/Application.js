@@ -21,6 +21,7 @@ qx.Class.define("qxl.testtapper.Application", {
   members: {
     _cnt: null,
     _failed: null,
+    _skipped: null,
     __tree: null,
     __model: null,
     log(text) {
@@ -88,6 +89,7 @@ qx.Class.define("qxl.testtapper.Application", {
       super.main();
       this._cnt = 0;
       this._failed = {};
+      this._skipped = {};
       // eslint-disable-next-line no-undef
       let cfg = {};
       if (typeof location !== "undefined" && location.search) {
@@ -271,7 +273,7 @@ qx.Class.define("qxl.testtapper.Application", {
           let startTime = startTimes.get(test) ?? performance.now();
           let timeDiff = performance.now() - startTime;
           startTimes.delete(test);
-          if (!that._failed[test]) {
+          if (!that._failed[test] && !that._skipped[test]) {
             that._cnt++;
             this.info(
               `ok ${that._cnt} - ${test} - [${numberFormat.format(timeDiff)}]`
@@ -288,7 +290,7 @@ qx.Class.define("qxl.testtapper.Application", {
         testResult.addListener("skip", (evt) => {
           that._cnt++;
           let test = evt.getData()[0].test.getFullName();
-          that._failed[test] = true;
+          that._skipped[test] = true;
           this.info(
             `ok ${that._cnt} - # SKIP ${test} - ${evt
               .getData()[0]
