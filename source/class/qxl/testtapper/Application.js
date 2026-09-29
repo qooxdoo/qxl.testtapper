@@ -184,6 +184,46 @@ qx.Class.define("qxl.testtapper.Application", {
       });
     },
 
+    /**
+     * qx.dev.unit.TestFunction waits only for test methods whose constructor
+     * is a native AsyncFunction. Transpiled async methods and methods that
+     * return a promise are treated as synchronous: they pass at once, and
+     * failed assertions or rejections after the first await are lost.
+     * Wrap the method, so that a returned promise is waited for and a
+     * rejection is reported like an exception thrown by the test.
+     *
+     * @param testFunction {qx.dev.unit.TestFunction} test to wrap
+     */
+    __awaitReturnedPromise(testFunction) {
+      let inst = testFunction.getTestClass();
+      let name = testFunction.getName();
+      let method = inst[name];
+      if (typeof method !== "function" || method.$$qxlAwaitPromise) {
+        return;
+      }
+      let wrapper = function (...args) {
+        let result = method.apply(this, args);
+        if (result && typeof result.then === "function") {
+          result.then(
+            () => this.resume(),
+            (ex) =>
+              this.resume(() => {
+                // objects pass unchanged: a wait() inside an async test
+                // rejects with a qx.dev.unit.AsyncWrapper, which
+                // TestResult turns into a new wait
+                throw ex !== null && typeof ex === "object"
+                  ? ex
+                  : new Error(String(ex));
+              })
+          );
+          this.wait();
+        }
+        return result;
+      };
+      wrapper.$$qxlAwaitPromise = true;
+      inst[name] = wrapper;
+    },
+
     runAll(cfg, clazz) {
       let that = this;
       this.info(`# start testing ${clazz.getName()}.`);
@@ -193,6 +233,7 @@ qx.Class.define("qxl.testtapper.Application", {
         this.log("# running only test methods that match " + matcher);
         methods = methods.filter((method) => method.getName().match(matcher));
       }
+      methods.forEach((method) => this.__awaitReturnedPromise(method));
 
       return new qx.Promise((resolve) => {
         let testResult = new qx.dev.unit.TestResult();
