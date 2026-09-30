@@ -124,24 +124,33 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
     __runTestInBrowser(browserType, url, app, result) {
       return new qx.Promise(async (resolve, reject) => {
         try {
+          if (!["chromium", "firefox", "webkit"].includes(browserType)) {
+            reject(new Error(`unknown browser ${browserType}`));
+            return;
+          }
           if (!this.__playwright) {
             this.__playwright = this.require("playwright");
-            const { execSync } = require("child_process");
-            let s;
-            s = `npx playwright install-deps`;
-            qx.tool.compiler.Console.info(s);
-            execSync(s, {
-              stdio: "inherit"
-            });
-            s = `npx playwright install`;
-            qx.tool.compiler.Console.info(s);
-            execSync(s, {
-              stdio: "inherit"
-            });
           }
-          if (!this.__v8toIstanbul) {	         
-             this.__v8toIstanbul = this.require("v8-to-istanbul");
-          }   
+          // only set up the browser this run needs
+          const { execSync } = require("child_process");
+          let s = `npx playwright install-deps ${browserType}`;
+          qx.tool.compiler.Console.info(s);
+          try {
+            execSync(s, {
+              stdio: "inherit"
+            });
+          } catch (e) {
+            // install-deps needs root; without it the libraries may well be
+            // installed already. If not, launch() below says what is missing.
+            qx.tool.compiler.Console.warn(
+              `${browserType}: '${s}' failed, trying to launch the browser anyway`
+            );
+          }
+          s = `npx playwright install ${browserType}`;
+          qx.tool.compiler.Console.info(s);
+          execSync(s, {
+            stdio: "inherit"
+          });
           console.log("TAP version 13");
           console.log(`# TESTTAPPER: Running tests in ${browserType}`);
           let args = [];
@@ -162,10 +171,6 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             console.log(launchArgs);
           }
           const browser = this.__playwright[browserType];
-          if (!browser) {
-            reject(new Error(`unknown browser ${browserType}`));
-            return;
-          }
           const context = await browser.launch(launchArgs);
           const page = await context.newPage();
           let cov =
@@ -175,6 +180,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                 : app.environment["qxl.testtapper.coverage"]
               : app.argv.coverage) && browserType === "chromium";
           if (cov) {
+            if (!this.__v8toIstanbul) {
+              this.__v8toIstanbul = this.require("v8-to-istanbul");
+            }
             await page.coverage.startJSCoverage();
           }
           let Ok = 0;
