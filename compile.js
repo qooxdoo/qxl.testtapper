@@ -110,14 +110,19 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
     },
 
     __testIt(data) {
-      let app = this.__getTestApp("qxl.testtapper.Application");
-      if (!app) {
-        qx.tool.compiler.Console.error(
-          "Please install testtapper application in compile.json"
-        );
+      let result = data.getData();
+      let app;
+      try {
+        app = this.__getTestApp("qxl.testtapper.Application");
+      } catch (e) {
+        qx.tool.compiler.Console.error(e.message);
+        result.setExitCode(253);
         return qx.Promise.resolve(false);
       }
-      let result = data.getData();
+      if (!app) {
+        // no testtapper app in the groups selected with --app-group
+        return qx.Promise.resolve(false);
+      }
       return this.__runTests(app, result);
     },
 
@@ -287,14 +292,12 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         if (s.length > 0) {
           s += "&";
         }
-        exitCode = 254;
         s += "method=" + app.argv.method;
       }
       if (app.argv.class) {
         if (s.length > 0) {
           s += "&";
         }
-        exitCode = 254;
         s += "class=" + app.argv.class;
       }
       if (s.length > 0) {
@@ -321,10 +324,14 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         })
       );
       let res = await Promise.all(tests);
+      // exit codes (#36): 253 an exception, 1-252 the number of failed
+      // tests, 254 all tests passed but a filter skipped the others
       if (exitCode === 0) {
         let sum = res.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
         if (sum > 0) {
           exitCode = Math.min(sum, 252);
+        } else if (app.argv.method || app.argv.class) {
+          exitCode = 254;
         }
       }
       if (exitCode > 0) {
@@ -340,9 +347,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         ? command.argv["app-group"].split(",").map(s => s.trim())
         : null;
       if (!command.getMakers()) {
-         return null;
+        throw new Error("Cannot run tests: no compile targets found");
       }
-      command.getMakers().forEach((tmp) => {
+      for (const tmp of command.getMakers()) {
         let apps = tmp
           .getApplications()
           .filter(
@@ -356,25 +363,26 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         }
         if (apps.length) {
           if (maker) {
-            qx.tool.compiler.Console.print("qx.tool.cli.test.tooManyMakers");
-            return null;
+            throw new Error(
+              "Cannot run tests: the testtapper application is in more than one target"
+            );
           }
           if (apps.length != 1) {
-            qx.tool.compiler.Console.print(
-              "qx.tool.cli.test.tooManyApplications"
+            throw new Error(
+              "Cannot run tests: there is more than one testtapper application, select one with --app-group"
             );
-            return null;
           }
           maker = tmp;
           app = apps[0];
         }
-      });
+      }
       if (!app) {
         if (argvAppGroups) {
           return null;
         }
-        qx.tool.compiler.Console.print("qx.tool.cli.test.noAppName");
-        return null;
+        throw new Error(
+          "Please install testtapper application in compile.json"
+        );
       }
       let env = app.getEnvironment();
       if (env["testtapper.testNameSpace"]) {
