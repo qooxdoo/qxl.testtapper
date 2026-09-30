@@ -42,7 +42,7 @@ jobs:
       run: |
            npm install '@qooxdoo/framework@^8.0.0-beta' --no-package-lock
            npm install playwright --no-package-lock
-           npx playwright install --with-deps
+           npx playwright install --with-deps chromium
     - name: Run Tests
       run: ./runtests.sh
 
