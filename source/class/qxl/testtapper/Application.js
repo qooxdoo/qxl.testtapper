@@ -22,6 +22,7 @@ qx.Class.define("qxl.testtapper.Application", {
     _cnt: null,
     _failed: null,
     _skipped: null,
+    __tearDowns: null,
     __tree: null,
     __model: null,
     log(text) {
@@ -90,6 +91,7 @@ qx.Class.define("qxl.testtapper.Application", {
       this._cnt = 0;
       this._failed = {};
       this._skipped = {};
+      this.__tearDowns = new Map();
       // eslint-disable-next-line no-undef
       let cfg = {};
       if (typeof location !== "undefined" && location.search) {
@@ -186,17 +188,72 @@ qx.Class.define("qxl.testtapper.Application", {
 
     /**
      * qx.dev.unit.TestFunction waits only for test methods whose constructor
-     * is a native AsyncFunction. Transpiled async methods and methods that
-     * return a promise are treated as synchronous: they pass at once, and
-     * failed assertions or rejections after the first await are lost.
-     * Wrap the method, so that a returned promise is waited for and a
-     * rejection is reported like an exception thrown by the test.
+     * is a native AsyncFunction, and never for setUp or tearDown. Transpiled
+     * async methods and methods that return a promise are treated as
+     * synchronous: they pass at once, and failed assertions or rejections
+     * after the first await are lost. Wrap the test method, setUp and
+     * tearDown, so that a returned promise is waited for and a rejection
+     * is reported like an exception thrown by the method.
      *
      * @param testFunction {qx.dev.unit.TestFunction} test to wrap
      */
     __awaitReturnedPromise(testFunction) {
       let inst = testFunction.getTestClass();
       let name = testFunction.getName();
+      this.__wrapPromise(inst, name, function (promise) {
+        promise.then(
+          () => this.resume(),
+          (ex) =>
+            this.resume(() => {
+              // objects pass unchanged: a wait() inside an async test
+              // rejects with a qx.dev.unit.AsyncWrapper, which
+              // TestResult turns into a new wait
+              throw ex !== null && typeof ex === "object"
+                ? ex
+                : new Error(String(ex));
+            })
+        );
+        this.wait();
+      });
+      // the test method starts only when setUp has settled
+      this.__wrapPromise(inst, "setUp", function (promise) {
+        promise.then(
+          () => this.resumeSetUp(),
+          (ex) =>
+            this.resume(() => {
+              if (ex === null || typeof ex !== "object") {
+                ex = new Error(String(ex));
+              }
+              ex.message = "setUp failed: " + ex.message;
+              throw ex;
+            })
+        );
+        this.wait();
+      });
+      // TestResult fires endTest right after tearDown, so the endTest
+      // handler waits for the promise
+      let tearDowns = this.__tearDowns;
+      ["tearDown", "tearDown" + qx.lang.String.firstUp(name)].forEach(
+        (tearDown) =>
+          this.__wrapPromise(inst, tearDown, function (promise) {
+            let test = this.getTestFunc().getFullName();
+            tearDowns.set(
+              test,
+              Promise.all([tearDowns.get(test), promise])
+            );
+          })
+      );
+    },
+
+    /**
+     * Replace inst[name] by a wrapper which calls onPromise (with the test
+     * instance as this) when the method returns a promise.
+     *
+     * @param inst {qx.dev.unit.TestCase} test instance
+     * @param name {String} method name
+     * @param onPromise {Function} called with the returned promise
+     */
+    __wrapPromise(inst, name, onPromise) {
       let method = inst[name];
       if (typeof method !== "function" || method.$$qxlAwaitPromise) {
         return;
@@ -204,19 +261,7 @@ qx.Class.define("qxl.testtapper.Application", {
       let wrapper = function (...args) {
         let result = method.apply(this, args);
         if (result && typeof result.then === "function") {
-          result.then(
-            () => this.resume(),
-            (ex) =>
-              this.resume(() => {
-                // objects pass unchanged: a wait() inside an async test
-                // rejects with a qx.dev.unit.AsyncWrapper, which
-                // TestResult turns into a new wait
-                throw ex !== null && typeof ex === "object"
-                  ? ex
-                  : new Error(String(ex));
-              })
-          );
-          this.wait();
+          return onPromise.call(this, result);
         }
         return result;
       };
@@ -310,7 +355,31 @@ qx.Class.define("qxl.testtapper.Application", {
           this.info("# endMeasurement " + evt.getData()[0].test.getFullName());
         });
         testResult.addListener("endTest", (evt) => {
-          let test = evt.getData().getFullName();
+          let testFunction = evt.getData();
+          let test = testFunction.getFullName();
+          let tearDown = this.__tearDowns.get(test);
+          if (tearDown) {
+            this.__tearDowns.delete(test);
+            tearDown.then(
+              () => endTest(test),
+              (ex) => {
+                if (ex === null || typeof ex !== "object") {
+                  ex = new Error(String(ex));
+                }
+                ex.message = "tearDown failed: " + ex.message;
+                if (that._failed[test]) {
+                  this.error(`# ${test} - ${ex}`);
+                } else {
+                  showExceptions([{ exception: ex, test: testFunction }]);
+                }
+                endTest(test);
+              }
+            );
+          } else {
+            endTest(test);
+          }
+        });
+        let endTest = (test) => {
           let startTime = startTimes.get(test) ?? performance.now();
           let timeDiff = performance.now() - startTime;
           startTimes.delete(test);
@@ -323,7 +392,7 @@ qx.Class.define("qxl.testtapper.Application", {
             this.addTreeItem("ok", that._cnt, testClass, testName.join(""));
           }
           setTimeout(next, 0);
-        });
+        };
         testResult.addListener("failure", (evt) =>
           showExceptions(evt.getData())
         );
