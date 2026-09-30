@@ -164,6 +164,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           const browser = this.__playwright[browserType];
           if (!browser) {
             reject(new Error(`unknown browser ${browserType}`));
+            return;
           }
           const context = await browser.launch(launchArgs);
           const page = await context.newPage();
@@ -180,7 +181,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           let notOk = 0;
           let skipped = 0;
           let startTime;
-          page.on("console", async (msg) => {
+          const onConsole = async (msg) => {
             let val = msg.text();
             // value is serializable
             if (val.match(/^\d+\.\.\d+$/)) {
@@ -200,7 +201,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                 let target = app.maker.getTarget();
                 let outputDir = target.getOutputDir();
                 const sourceMapUrl = this.require("source-map-url");
-                for await (entry of coverage) {
+                for await (const entry of coverage) {
                   let source;
                   let sm = sourceMapUrl.getFrom(entry.source);
                   if (sm) {
@@ -211,7 +212,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                     source = entry.source;
                   }
                   let url = new URL(entry.url);
-                  filePath = path.join(process.cwd(), outputDir, url.pathname);
+                  const filePath = path.join(process.cwd(), outputDir, url.pathname);
                   const converter = new this.__v8toIstanbul(filePath, 0, {
                     source: source,
                   });
@@ -252,9 +253,12 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             } else if (app.argv.verbose) {
               qx.tool.compiler.Console.log(`${browserType}: ${val}`);
             }
-          });
+          };
+          // an error in the async listener (e.g. while writing coverage)
+          // would otherwise be lost and leave this promise pending forever
+          page.on("console", (msg) => onConsole(msg).catch(reject));
           startTime = performance.now();
-          page.goto(url.href);
+          await page.goto(url.href);
         } catch (e) {
           reject(e);
         }
@@ -299,15 +303,15 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       if (!browsers || browsers.length === 0) {
         browsers = ["chromium"];
       }
-      let tests = [];
-      for (const browserType of browsers) {
-        try {
-          tests.push(this.__runTestInBrowser(browserType, url, app, result));
-        } catch (e) {
-          qx.tool.compiler.Console.error(e);
+      // a failing browser must not reject Promise.all: qx test would then
+      // never reach its process.exit() and keep serving forever
+      let tests = browsers.map((browserType) =>
+        this.__runTestInBrowser(browserType, url, app, result).catch((e) => {
+          qx.tool.compiler.Console.error(`${browserType}: ${e.stack || e}`);
           exitCode = 253;
-        }
-      }
+          return 0;
+        })
+      );
       let res = await Promise.all(tests);
       if (exitCode === 0) {
         let sum = res.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
