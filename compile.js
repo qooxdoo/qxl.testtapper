@@ -178,6 +178,19 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           const browser = this.__playwright[browserType];
           const context = await browser.launch(launchArgs);
           const page = await context.newPage();
+          // without these the promise stays pending when the browser dies
+          // before the test app has printed its "1..N" plan line
+          let finished = false;
+          const fail = (msg) => {
+            if (!finished) {
+              reject(new Error(msg));
+            }
+          };
+          context.on("disconnected", () =>
+            fail("browser closed before the tests finished")
+          );
+          page.on("crash", () => fail("page crashed"));
+          page.on("close", () => fail("page closed before the tests finished"));
           let cov =
             (app.argv.coverage === null
               ? app.environment["qxl.testtapper.coverage"] === null
@@ -198,6 +211,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             let val = msg.text();
             // value is serializable
             if (val.match(/^\d+\.\.\d+$/)) {
+              finished = true;
               let endTime = performance.now();
               let timeDiff = endTime - startTime;
               qx.tool.compiler.Console.info(
