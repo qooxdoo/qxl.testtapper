@@ -44,5 +44,21 @@ qx.Class.define("qxl.testtapperdemo.test.Test09AsyncFunction", {
         this.assertEquals("exc", e.message, "throw Error");
       }
     },
+    async "test05: wait() after await"() {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 100);
+      });
+      this.wait(200, () => {
+        this.assert(true);
+      });
+    },
+    async "test06: async assertion fails"() {
+      let value = await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve("resolved");
+        }, 100);
+      });
+      this.assertEquals("expected", value, "expected failure");
+    },
   },
 });

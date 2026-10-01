@@ -427,7 +427,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         env["qxl.testtapper.testNameSpace"] = env["testtapper.testNameSpace"];
       }
       let config = command.getCompilerApi().getConfiguration();
-      let listenPort = config?.serve?.listenPort ?? command.argv.listenPort;
+      // same order as qx.tool.compiler.cli.commands.Serve, so the
+      // browser is sent to the port the web server listens on
+      let listenPort = command.argv.listenPort ?? config?.serve?.listenPort;
       return {
         name: app.getName(),
         environment: env,

@@ -47,6 +47,6 @@
   "requires": {
     "@qooxdoo/framework": "^8.0.0-beta",
     "qooxdoo/qxl.logpane": "^2.0.0",
-    "qooxdoo/deprecated.qx.io.list": "^1.0.1"
+    "qooxdoo/deprecated.qx.ui.list": "^1.0.1"
   }
 }
