@@ -339,7 +339,8 @@ qx.Class.define("qxl.testtapper.Application", {
               this.error("Unexpected Error - ", item);
             }
           });
-          setTimeout(next, 0);
+          // no next() here: qx.dev.unit.TestResult fires "endTest" after
+          // every "failure" and "error", and the endTest handler advances
         };
         testResult.addListener("startTest", (evt) => {
           const name = evt.getData().getFullName();

@@ -110,38 +110,52 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
     },
 
     __testIt(data) {
-      let app = this.__getTestApp("qxl.testtapper.Application");
-      if (!app) {
-        qx.tool.compiler.Console.error(
-          "Please install testtapper application in compile.json"
-        );
+      let result = data.getData();
+      let app;
+      try {
+        app = this.__getTestApp("qxl.testtapper.Application");
+      } catch (e) {
+        qx.tool.compiler.Console.error(e.message);
+        result.setExitCode(253);
         return qx.Promise.resolve(false);
       }
-      let result = data.getData();
+      if (!app) {
+        // no testtapper app in the groups selected with --app-group
+        return qx.Promise.resolve(false);
+      }
       return this.__runTests(app, result);
     },
 
     __runTestInBrowser(browserType, url, app, result) {
       return new qx.Promise(async (resolve, reject) => {
         try {
+          if (!["chromium", "firefox", "webkit"].includes(browserType)) {
+            reject(new Error(`unknown browser ${browserType}`));
+            return;
+          }
           if (!this.__playwright) {
             this.__playwright = this.require("playwright");
-            const { execSync } = require("child_process");
-            let s;
-            s = `npx playwright install-deps`;
-            qx.tool.compiler.Console.info(s);
-            execSync(s, {
-              stdio: "inherit"
-            });
-            s = `npx playwright install`;
-            qx.tool.compiler.Console.info(s);
-            execSync(s, {
-              stdio: "inherit"
-            });
           }
-          if (!this.__v8toIstanbul) {	         
-             this.__v8toIstanbul = this.require("v8-to-istanbul");
-          }   
+          // only set up the browser this run needs
+          const { execSync } = require("child_process");
+          let s = `npx playwright install-deps ${browserType}`;
+          qx.tool.compiler.Console.info(s);
+          try {
+            execSync(s, {
+              stdio: "inherit"
+            });
+          } catch (e) {
+            // install-deps needs root; without it the libraries may well be
+            // installed already. If not, launch() below says what is missing.
+            qx.tool.compiler.Console.warn(
+              `${browserType}: '${s}' failed, trying to launch the browser anyway`
+            );
+          }
+          s = `npx playwright install ${browserType}`;
+          qx.tool.compiler.Console.info(s);
+          execSync(s, {
+            stdio: "inherit"
+          });
           console.log("TAP version 13");
           console.log(`# TESTTAPPER: Running tests in ${browserType}`);
           let args = [];
@@ -162,11 +176,21 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             console.log(launchArgs);
           }
           const browser = this.__playwright[browserType];
-          if (!browser) {
-            reject(new Error(`unknown browser ${browserType}`));
-          }
           const context = await browser.launch(launchArgs);
           const page = await context.newPage();
+          // without these the promise stays pending when the browser dies
+          // before the test app has printed its "1..N" plan line
+          let finished = false;
+          const fail = (msg) => {
+            if (!finished) {
+              reject(new Error(msg));
+            }
+          };
+          context.on("disconnected", () =>
+            fail("browser closed before the tests finished")
+          );
+          page.on("crash", () => fail("page crashed"));
+          page.on("close", () => fail("page closed before the tests finished"));
           let cov =
             (app.argv.coverage === null
               ? app.environment["qxl.testtapper.coverage"] === null
@@ -174,16 +198,20 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                 : app.environment["qxl.testtapper.coverage"]
               : app.argv.coverage) && browserType === "chromium";
           if (cov) {
+            if (!this.__v8toIstanbul) {
+              this.__v8toIstanbul = this.require("v8-to-istanbul");
+            }
             await page.coverage.startJSCoverage();
           }
           let Ok = 0;
           let notOk = 0;
           let skipped = 0;
           let startTime;
-          page.on("console", async (msg) => {
+          const onConsole = async (msg) => {
             let val = msg.text();
             // value is serializable
             if (val.match(/^\d+\.\.\d+$/)) {
+              finished = true;
               let endTime = performance.now();
               let timeDiff = endTime - startTime;
               qx.tool.compiler.Console.info(
@@ -200,7 +228,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                 let target = app.maker.getTarget();
                 let outputDir = target.getOutputDir();
                 const sourceMapUrl = this.require("source-map-url");
-                for await (entry of coverage) {
+                for await (const entry of coverage) {
                   let source;
                   let sm = sourceMapUrl.getFrom(entry.source);
                   if (sm) {
@@ -211,7 +239,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
                     source = entry.source;
                   }
                   let url = new URL(entry.url);
-                  filePath = path.join(process.cwd(), outputDir, url.pathname);
+                  const filePath = path.join(process.cwd(), outputDir, url.pathname);
                   const converter = new this.__v8toIstanbul(filePath, 0, {
                     source: source,
                   });
@@ -252,9 +280,12 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
             } else if (app.argv.verbose) {
               qx.tool.compiler.Console.log(`${browserType}: ${val}`);
             }
-          });
+          };
+          // an error in the async listener (e.g. while writing coverage)
+          // would otherwise be lost and leave this promise pending forever
+          page.on("console", (msg) => onConsole(msg).catch(reject));
           startTime = performance.now();
-          page.goto(url.href);
+          await page.goto(url.href);
         } catch (e) {
           reject(e);
         }
@@ -275,14 +306,12 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         if (s.length > 0) {
           s += "&";
         }
-        exitCode = 254;
         s += "method=" + app.argv.method;
       }
       if (app.argv.class) {
         if (s.length > 0) {
           s += "&";
         }
-        exitCode = 254;
         s += "class=" + app.argv.class;
       }
       if (s.length > 0) {
@@ -299,25 +328,50 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       if (!browsers || browsers.length === 0) {
         browsers = ["chromium"];
       }
-      let tests = [];
-      for (const browserType of browsers) {
-        try {
-          tests.push(this.__runTestInBrowser(browserType, url, app, result));
-        } catch (e) {
-          qx.tool.compiler.Console.error(e);
+      // a failing browser must not reject Promise.all: qx test would then
+      // never reach its process.exit() and keep serving forever
+      let tests = browsers.map((browserType) =>
+        this.__runTestInBrowser(browserType, url, app, result).catch((e) => {
+          qx.tool.compiler.Console.error(`${browserType}: ${e.stack || e}`);
           exitCode = 253;
-        }
-      }
+          return 0;
+        })
+      );
       let res = await Promise.all(tests);
+      // exit codes (#36): 253 an exception, 1-252 the number of failed
+      // tests, 254 all tests passed but a filter skipped the others
       if (exitCode === 0) {
         let sum = res.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
         if (sum > 0) {
           exitCode = Math.min(sum, 252);
+        } else if (app.argv.method || app.argv.class) {
+          exitCode = 254;
         }
       }
       if (exitCode > 0) {
         result.setExitCode(exitCode);
       }
+    },
+
+    /**
+     * The groups of an application from compile.json. qooxdoo 8.0 beta
+     * keeps them only in the application's config entry; newer compilers
+     * also copy them into Application.getGroup().
+     */
+    __getAppGroups(app) {
+      let groups = typeof app.getGroup == "function" ? app.getGroup() : null;
+      if (!groups) {
+        let appConfigs =
+          this.getCompilerApi().getConfiguration().applications || [];
+        let appConfig = appConfigs.find(
+          (c) => c.app === app || (c.name && c.name === app.getName())
+        );
+        groups = appConfig?.group;
+      }
+      if (typeof groups == "string") {
+        groups = [groups];
+      }
+      return groups || [];
     },
 
     __getTestApp(classname) {
@@ -328,9 +382,9 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         ? command.argv["app-group"].split(",").map(s => s.trim())
         : null;
       if (!command.getMakers()) {
-         return null;
+        throw new Error("Cannot run tests: no compile targets found");
       }
-      command.getMakers().forEach((tmp) => {
+      for (const tmp of command.getMakers()) {
         let apps = tmp
           .getApplications()
           .filter(
@@ -338,31 +392,32 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           );
         if (argvAppGroups) {
           apps = apps.filter(app => {
-            let groups = app.getGroup() || [];
+            let groups = this.__getAppGroups(app);
             return argvAppGroups.some(g => groups.includes(g));
           });
         }
         if (apps.length) {
           if (maker) {
-            qx.tool.compiler.Console.print("qx.tool.cli.test.tooManyMakers");
-            return null;
+            throw new Error(
+              "Cannot run tests: the testtapper application is in more than one target"
+            );
           }
           if (apps.length != 1) {
-            qx.tool.compiler.Console.print(
-              "qx.tool.cli.test.tooManyApplications"
+            throw new Error(
+              "Cannot run tests: there is more than one testtapper application, select one with --app-group"
             );
-            return null;
           }
           maker = tmp;
           app = apps[0];
         }
-      });
+      }
       if (!app) {
         if (argvAppGroups) {
           return null;
         }
-        qx.tool.compiler.Console.print("qx.tool.cli.test.noAppName");
-        return null;
+        throw new Error(
+          "Please install testtapper application in compile.json"
+        );
       }
       let env = app.getEnvironment();
       if (env["testtapper.testNameSpace"]) {

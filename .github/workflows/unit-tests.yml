@@ -18,8 +18,9 @@ jobs:
           - ubuntu-latest
 
         node:
-          - '18.x'
           - '20.x'
+          - '22.x'
+          - '24.x'
 
       fail-fast: false
 
@@ -30,18 +31,18 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Setup Node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node }}
 
     - name: Install NPM Dependencies
       run: |
-           npm install @qooxdoo/framework --no-package-lock
+           npm install '@qooxdoo/framework@^8.0.0-beta' --no-package-lock
            npm install playwright --no-package-lock
-           npx playwright install --with-deps
+           npx playwright install --with-deps chromium
     - name: Run Tests
       run: ./runtests.sh
 
