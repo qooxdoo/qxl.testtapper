@@ -67,8 +67,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         cmd.addFlag(
           new qx.tool.cli.Flag("coverage").set({
             description: "writes coverage infos, only working for chromium yet",
-            type: "boolean",
-            value: false
+            type: "boolean"
           })
         );
       }
@@ -77,8 +76,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         cmd.addFlag(
           new qx.tool.cli.Flag("headless").set({
             description: "runs test headless",
-            type: "boolean",
-            value: false
+            type: "boolean"
           })
         );
       }
@@ -191,6 +189,17 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           );
           page.on("crash", () => fail("page crashed"));
           page.on("close", () => fail("page closed before the tests finished"));
+          // an uncaught error before the first test result means the test
+          // app did not start, so it never prints its "1..N" plan line
+          let started = false;
+          page.on("pageerror", (err) => {
+            qx.tool.compiler.Console.error(
+              `${browserType}: page error: ${err.stack || err}`
+            );
+            if (!started) {
+              fail(`test app did not start: ${err.message}`);
+            }
+          });
           let cov =
             (app.argv.coverage === null
               ? app.environment["qxl.testtapper.coverage"] === null
@@ -263,14 +272,17 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
               };
               resolve(notOk);
             } else if (val.match(/^not ok /)) {
+              started = true;
               notOk++;
               qx.tool.compiler.Console.log(`${browserType}: ${val}`);
             } else if (val.includes("# SKIP")) {
+              started = true;
               skipped++;
               if (!app.argv.terse) {
                 qx.tool.compiler.Console.log(`${browserType}: ${val}`);
               }
             } else if (val.match(/^ok\s/)) {
+              started = true;
               Ok++;
               if (!app.argv.terse) {
                 qx.tool.compiler.Console.log(`${browserType}: ${val}`);
