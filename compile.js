@@ -67,8 +67,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         cmd.addFlag(
           new qx.tool.cli.Flag("coverage").set({
             description: "writes coverage infos, only working for chromium yet",
-            type: "boolean",
-            value: false
+            type: "boolean"
           })
         );
       }
@@ -77,8 +76,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
         cmd.addFlag(
           new qx.tool.cli.Flag("headless").set({
             description: "runs test headless",
-            type: "boolean",
-            value: false
+            type: "boolean"
           })
         );
       }
