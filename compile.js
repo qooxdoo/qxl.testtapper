@@ -282,7 +282,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
               started = true;
               notOk++;
               qx.tool.compiler.Console.log(`${browserType}: ${val}`);
-            } else if (val.includes("# SKIP")) {
+            } else if (val.match(/^ok \d+ - # SKIP/)) {
               started = true;
               skipped++;
               if (!app.argv.terse) {
