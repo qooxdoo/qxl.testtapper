@@ -124,6 +124,18 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
       return this.__runTests(app, result);
     },
 
+    /**
+     * Whether the browser runs without a window, from --headless or from the
+     * qxl.testtapper.headless environment setting.
+     */
+    __isHeadless(app) {
+      return app.argv.headless === null
+        ? app.environment["qxl.testtapper.headless"] === null
+          ? true
+          : app.environment["qxl.testtapper.headless"]
+        : app.argv.headless;
+    },
+
     __runTestInBrowser(browserType, url, app, result) {
       return new qx.Promise(async (resolve, reject) => {
         try {
@@ -163,12 +175,7 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           }
           const launchArgs = {
             args: args,
-            headless:
-              app.argv.headless === null
-                ? app.environment["qxl.testtapper.headless"] === null
-                  ? true
-                  : app.environment["qxl.testtapper.headless"]
-                : app.argv.headless,
+            headless: this.__isHeadless(app),
           };
           if (app.argv.verbose) {
             console.log(launchArgs);
@@ -325,6 +332,14 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           s += "&";
         }
         s += "class=" + app.argv.class;
+      }
+      if (this.__isHeadless(app)) {
+        // nobody can read the results tree and the log pane of a browser
+        // without a window, and filling them costs more the longer the run
+        if (s.length > 0) {
+          s += "&";
+        }
+        s += "ui=0";
       }
       if (s.length > 0) {
         url.search = s;

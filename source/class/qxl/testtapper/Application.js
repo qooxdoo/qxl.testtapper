@@ -25,21 +25,36 @@ qx.Class.define("qxl.testtapper.Application", {
     __tearDowns: null,
     __tree: null,
     __model: null,
+    __ui: true,
+
+    // The console carries the TAP output a test run is read from. The
+    // qx.log.Logger copy of it is for the log pane, which nobody can read
+    // when the browser has no window, and which costs a forced reflow per
+    // line over a DOM that grows with every test.
     log(text) {
       console.log(text);
-      qx.log.Logger.debug(text);
+      if (this.__ui) {
+        qx.log.Logger.debug(text);
+      }
     },
     info(text) {
       console.info(text);
-      qx.log.Logger.info(text);
+      if (this.__ui) {
+        qx.log.Logger.info(text);
+      }
     },
     error(text) {
       console.error(text);
-      qx.log.Logger.error(text);
+      if (this.__ui) {
+        qx.log.Logger.error(text);
+      }
     },
 
     // add an item in the tree
     addTreeItem(status, testNumber, testClass, testName, message = "") {
+      if (!this.__ui) {
+        return;
+      }
       let classNode = this.__model
         .getChildren()
         .toArray()
@@ -104,6 +119,8 @@ qx.Class.define("qxl.testtapper.Application", {
           }
         });
       }
+      // the runner asks for ui=0 when it drives a headless browser
+      this.__ui = cfg.ui !== "0";
       let main_container = new qx.ui.container.Composite();
       main_container.setLayout(new qx.ui.layout.VBox());
       main_container.add(
