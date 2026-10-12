@@ -304,7 +304,13 @@ qx.Class.define("qxl.testtapper.compile.LibraryApi", {
           // would otherwise be lost and leave this promise pending forever
           page.on("console", (msg) => onConsole(msg).catch(reject));
           startTime = performance.now();
-          await page.goto(url.href);
+          await page.goto(url.href).catch((e) => {
+            // goto waits for the page's load event; when the tests finish
+            // before it fires, closing the browser makes goto fail
+            if (!finished) {
+              throw e;
+            }
+          });
         } catch (e) {
           reject(e);
         }
